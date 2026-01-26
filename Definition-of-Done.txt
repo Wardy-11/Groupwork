@@ -1,0 +1,5 @@
+Planning
+Implementation
+Testing
+Review
+Push to GitLab
