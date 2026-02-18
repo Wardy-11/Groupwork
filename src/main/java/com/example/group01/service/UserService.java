@@ -16,7 +16,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void registerUser(String firstName, String lastName, String email, String password){
+    public void registerUser(String firstName, String lastName, String email, String password, String course){
 
         if(userRepository.findByEmail(email) != null){
             throw new RuntimeException("Email already exists");
@@ -28,6 +28,7 @@ public class UserService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole("USER");
+        user.setCourse(course);
 
         userRepository.save(user);
     }

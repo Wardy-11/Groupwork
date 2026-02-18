@@ -3,6 +3,7 @@ package com.example.group01.controller;
 import com.example.group01.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -22,17 +23,27 @@ public class MyController {
             String lastName,
             String email,
             String password,
-            String confirmPassword
+            String confirmPassword,
+            String course,
+            Model model
     ) {
 
         if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match");
             return "register";
         }
 
-        userService.registerUser(firstName, lastName, email, password);
+        try {
+            userService.registerUser(firstName, lastName, email, password, course);
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            return "register";
+        }
 
         return "redirect:/login";
     }
+
+
 
 
     @GetMapping("/login")
