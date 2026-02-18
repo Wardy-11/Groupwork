@@ -14,6 +14,8 @@ public class User {
     private String email;
     private String password;
     private String role;
+    private String course;
+
 
     public String getRole() {
         return role;
@@ -53,6 +55,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
     }
 
     public Long getId() {
