@@ -16,11 +16,21 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void registerUser(String username, String password){
+    public void registerUser(String firstName, String lastName, String email, String password){
+
+        if(userRepository.findByEmail(email) != null){
+            throw new RuntimeException("Email already exists");
+        }
+
         User user = new User();
-        user.setUsername(username);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole("USER");
+
         userRepository.save(user);
     }
+
+
 }

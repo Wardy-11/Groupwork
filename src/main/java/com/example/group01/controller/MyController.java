@@ -17,10 +17,23 @@ public class MyController {
     }
 
     @PostMapping("/register")
-    public String registerUser(String username, String password){
-        userService.registerUser(username, password);
+    public String registerUser(
+            String firstName,
+            String lastName,
+            String email,
+            String password,
+            String confirmPassword
+    ) {
+
+        if (!password.equals(confirmPassword)) {
+            return "register";
+        }
+
+        userService.registerUser(firstName, lastName, email, password);
+
         return "redirect:/login";
     }
+
 
     @GetMapping("/login")
     public String login(){
