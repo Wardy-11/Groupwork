@@ -17,6 +17,7 @@ public class MyController {
         return "register";
     }
 
+
     @PostMapping("/register")
     public String registerUser(
             String firstName,
@@ -27,6 +28,31 @@ public class MyController {
             String course,
             Model model
     ) {
+
+        if (firstName == null || firstName.isBlank()) {
+            model.addAttribute("error", "First name is required");
+            return "register";
+        }
+
+        if (lastName == null || lastName.isBlank()) {
+            model.addAttribute("error", "Last name is required");
+            return "register";
+        }
+
+        if (email == null || email.isBlank()) {
+            model.addAttribute("error", "Email is required");
+            return "register";
+        }
+
+        if (!email.contains("@")) {
+            model.addAttribute("error", "Invalid email format");
+            return "register";
+        }
+
+        if (password == null || password.length() < 6) {
+            model.addAttribute("error", "Password must be at least 6 characters");
+            return "register";
+        }
 
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match");
