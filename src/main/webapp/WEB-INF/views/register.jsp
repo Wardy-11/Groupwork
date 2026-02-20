@@ -1,27 +1,38 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Register - Student Portal</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 2rem;
             background-color: #f4f7f9;
         }
-        h2 { color: #333; text-align: center; }
-        .form-container {
+        nav {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        nav a {
+            color: #005A9E;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        nav a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
             background: white;
             padding: 20px 30px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            max-width: 500px;
-            margin: 0 auto;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+        h2 { color: #333; text-align: center; margin-bottom: 1rem; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
         .form-group input, .form-group select {
@@ -31,19 +42,29 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .btn { padding: 8px 15px; text-decoration: none; border-radius: 4px;
-               color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
         .btn-blue { background-color: #005A9E; }
         .btn-blue:hover { background-color: #004a87; }
-        .error-msg { color: red; font-weight: bold; margin-bottom: 15px; }
+        .error-msg { color: red; font-weight: bold; margin-bottom: 15px; text-align:center; }
         .notice { font-size: 0.9rem; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
+<nav>
+    <a href="${pageContext.request.contextPath}/login">Already have an account? Login</a>
+</nav>
+<div class="container">
+    <h2>Create Account</h2>
 
-<h2>Register</h2>
-
-<div class="form-container">
     <c:if test="${not empty error}">
         <p class="error-msg">${error}</p>
     </c:if>
@@ -88,7 +109,7 @@
     </form>
 
     <p class="notice">
-        Already have an account? <a href="${pageContext.request.contextPath}/login">Back to login</a>
+        By registering you agree to our <a href="https://students.yourlearning.ibm.com/about/terms/?_gl=1*q7ycac*_ga*MTgxMDY5NjIyOC4xNzcxNDMyNzM4*_ga_FYECCCS21D*czE3NzE2MTExMTYkbzIkZzEkdDE3NzE2MTExNDkkajI3JGwwJGgw&lang=en">terms</a>.
     </p>
 </div>
 

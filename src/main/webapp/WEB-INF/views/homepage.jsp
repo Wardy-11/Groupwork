@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,6 +6,8 @@
     <title>Homepage</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 2rem; background-color: #f4f7f9; }
+        nav { text-align: right; margin-bottom: 1rem; }
+        nav form { display:inline; }
         h2 { color: #333; text-align: center; }
         .container {
             background: white;
@@ -23,12 +25,14 @@
     </style>
 </head>
 <body>
-
+<nav>
+    <form action="${pageContext.request.contextPath}/logout" method="post">
+        <button class="btn btn-blue">Logout</button>
+    </form>
+</nav>
 <div class="container">
     <h2>Welcome</h2>
-    <form action="${pageContext.request.contextPath}/logout" method="post">
-        <button type="submit" class="btn btn-blue">Logout</button>
-    </form>
+    <p>You're now logged in.</p>
 </div>
 </body>
 </html>
