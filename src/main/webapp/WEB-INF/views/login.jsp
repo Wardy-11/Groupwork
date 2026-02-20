@@ -80,7 +80,6 @@
         <button type="submit" class="btn btn-blue">Login</button>
     </form>
 
-    <p class="notice"><a href="${pageContext.request.contextPath}/register">Create an account</a></p>
 </div>
 
 </body>
