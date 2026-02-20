@@ -1,15 +1,16 @@
 package com.example.group01.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table
+@Table(name = "users")
 public class User {
-
+    /**
+     * Auto-generated primary key.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
