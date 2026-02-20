@@ -1,6 +1,8 @@
 package com.example.group01.controller;
 
+import com.example.group01.model.User;
 import com.example.group01.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -76,6 +78,14 @@ public class MyController {
     public String login(){
         return "login";
     }
+
+
+    @GetMapping("/logout")
+    public String logoutUser(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
+
     @GetMapping("/homepage")
     public String home(){
         return "homepage";
