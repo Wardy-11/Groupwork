@@ -59,11 +59,11 @@ public class MyController {
         return "homepage";
     }
 
-
     @GetMapping("/profile")
     public String viewProfile(Model model, Authentication authentication) {
-        String email = authentication.getName(); // username = email
+        String email = authentication.getName();
         User user = userRepository.findByEmail(email);
+
         model.addAttribute("user", user);
         return "profile";
     }
@@ -72,7 +72,6 @@ public class MyController {
     public String updateProfile(User formUser, Authentication authentication, Model model) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-
 
         user.setFirstName(formUser.getFirstName());
         user.setLastName(formUser.getLastName());
