@@ -18,21 +18,26 @@ public class AchievementService {
 
     public void unlockAchievement(User user, String title) {
 
-        boolean alreadyUnlocked = user.getAchievements().stream()
-                .anyMatch(a -> a.getTitle().equals(title));
+        if (user.getAchievements() != null) {
+            boolean alreadyUnlocked = user.getAchievements().stream()
+                    .anyMatch(a -> a.getTitle().equals(title));
 
-        if (alreadyUnlocked) {
-            return;
+            if (alreadyUnlocked) {
+                return;
+            }
         }
 
         Achievement achievement = new Achievement();
         achievement.setTitle(title);
+        achievement.setDescription("Achievement unlocked: " + title);
         achievement.setUser(user);
-
 
         achievementRepository.save(achievement);
 
-        user.getAchievements().add(achievement);
+        if (user.getAchievements() != null) {
+            user.getAchievements().add(achievement);
+        }
+
         userRepository.save(user);
     }
 }

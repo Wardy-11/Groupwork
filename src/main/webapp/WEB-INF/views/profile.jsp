@@ -27,6 +27,27 @@
     <input type="submit" value="Update Profile" />
 </form>
 
+<h2>Your Achievements</h2>
+
+<c:if test="${empty user.achievements}">
+    <p>No achievements yet.</p>
+</c:if>
+
+<c:if test="${not empty user.achievements}">
+    <ul>
+        <c:forEach var="achievement" items="${user.achievements}">
+            <li>
+                <strong>${achievement.title}</strong><br/>
+                    ${achievement.description}
+            </li>
+        </c:forEach>
+    </ul>
+</c:if>
+
+<form action="<c:url value='/unlock-achievement' />" method="post">
+    <button type="submit">Unlock First Login Achievement</button>
+</form>
+
 <p>
     <a href="<c:url value='/homepage' />">Back to Homepage</a>
 </p>
