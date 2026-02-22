@@ -1,6 +1,5 @@
 package com.example.group01.configuration;
 
-import com.example.group01.service.CustomUserDetailsService;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

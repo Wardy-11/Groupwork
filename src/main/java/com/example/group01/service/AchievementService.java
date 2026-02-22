@@ -2,8 +2,8 @@ package com.example.group01.service;
 
 import com.example.group01.model.Achievement;
 import com.example.group01.model.User;
-import com.example.group01.repo.AchievementRepository;
-import com.example.group01.repo.UserRepository;
+import com.example.group01.repository.AchievementRepository;
+import com.example.group01.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
