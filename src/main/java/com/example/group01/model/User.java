@@ -31,6 +31,12 @@ public class User {
     @NotBlank(message = "Password is required")
     private String password;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Achievement> achievements;
+
+    @Column(nullable = false, unique = true, length = 64)
+    private String username;
+
     private String role;
     private String course;
     public String getRole() {
@@ -89,9 +95,6 @@ public class User {
         this.id = id;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Achievement> achievements;
-
     public List<Achievement> getAchievements() {
         return achievements;
     }
@@ -100,4 +103,11 @@ public class User {
         this.achievements = achievements;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

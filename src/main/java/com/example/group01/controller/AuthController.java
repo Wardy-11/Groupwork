@@ -123,7 +123,7 @@ public class AuthController {
         user.setCourse(formUser.getCourse());
 
         if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
-            user.setPassword(formUser.getPassword());
+            user.setPassword(userService.encodePassword(formUser.getPassword()));
         }
 
         userRepository.save(user);

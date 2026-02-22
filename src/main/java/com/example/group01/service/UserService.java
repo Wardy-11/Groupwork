@@ -78,6 +78,7 @@ public class UserService {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
+        user.setUsername(generateUniqueUsername(firstName, lastName));
 
         // encode the plain password before saving
         user.setPassword(passwordEncoder.encode(password));
@@ -86,6 +87,32 @@ public class UserService {
         user.setCourse(course);
 
         userRepository.save(user);
-        log.info("New user registered: {}", email);
+        log.info("New user registered: {} (username: {})", email, user.getUsername());
+    }
+
+    public String encodePassword(String password){
+        return passwordEncoder.encode(password);
+    }
+
+    private String generateUniqueUsername(String firstName, String lastName) {
+        String base = (firstName + "." + lastName)
+                .toLowerCase()
+                .trim()
+                .replaceAll("\\s+", "")          // remove spaces
+                .replaceAll("[^a-z0-9.]", "");   // remove symbols
+
+        if (base.isBlank()) base = "user";
+
+        if (!userRepository.existsByUsername(base)) {
+            return base;
+        }
+
+        for (int i = 2; i <= 9999; i++) {
+            String possible = base + i;
+            if (!userRepository.existsByUsername(possible)) {
+                return possible;
+            }
+        }
+        throw new RuntimeException("Could not generate unique username for " + base);
     }
 }
