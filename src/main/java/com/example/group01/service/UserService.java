@@ -1,7 +1,7 @@
 package com.example.group01.service;
 
 import com.example.group01.model.User;
-import com.example.group01.repo.UserRepository;
+import com.example.group01.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
