@@ -22,6 +22,11 @@
 </p>
 
 <p>
+    <a href="<c:url value='/leaderboard' />">View Leaderboard</a>
+</p>
+
+
+<p>
     <a href="${pageContext.request.contextPath}/dashboard">Go to Dashboard</a>
 </p>
 </body>

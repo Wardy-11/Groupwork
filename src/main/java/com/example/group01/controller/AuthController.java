@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 /**
  * Handles authentication-related requests such as login, registration,
  * logout and the post-login homepage. 
@@ -106,7 +108,7 @@ public class AuthController {
     }
 
     @GetMapping("/homepage")
-    public String home() {
+    public String showHomePage() {
         return "homepage";
     }
 
@@ -117,6 +119,14 @@ public class AuthController {
 
         model.addAttribute("user", user);
         return "profile";
+    }
+
+    @GetMapping("/leaderboard")
+    public String viewLeaderboard(Model model) {
+        List<User> users = userRepository.findAll();
+        List<User> sortedUsers = users.sort(User.xp); //trying to figure out how list sorting works, xp needs implementing to find out.
+        model.addAttribute("users", sortedUsers);
+        return "leaderboard";
     }
 
     @PostMapping("/profile")
