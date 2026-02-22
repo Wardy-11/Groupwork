@@ -1,5 +1,0 @@
-Completes the requirements of the user
-Implementation works correctly and is intergrated properly
-All tests have been completed successfully
-Implementation has been reviewed to make sure that the group and user is satisfied
-Successfully push the work into gitlab with 0 conflicts or errors.
