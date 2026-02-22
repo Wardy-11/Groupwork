@@ -92,9 +92,9 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("/homepage")
+    @GetMapping("/courses")
     public String showHomepage() {
-        return "homepage";
+        return "courses";
     }
 
 }
