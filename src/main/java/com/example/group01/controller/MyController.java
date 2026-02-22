@@ -1,7 +1,7 @@
 package com.example.group01.controller;
 
 import com.example.group01.model.User;
-import com.example.group01.repo.UserRepository;
+import com.example.group01.repository.UserRepository;
 import com.example.group01.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -78,7 +78,8 @@ public class MyController {
         user.setCourse(formUser.getCourse());
 
         if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
-            user.setPassword(userService.encodePassword(formUser.getPassword()));
+            //user.setPassword(userService.encodePassword(formUser.getPassword()));
+            user.setPassword(formUser.getPassword());
         }
 
         userRepository.save(user);
