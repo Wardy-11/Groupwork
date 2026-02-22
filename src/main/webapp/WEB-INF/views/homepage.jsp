@@ -16,5 +16,13 @@
 <p>
     <a href="<c:url value='/logout' />">Logout</a>
 </p>
+
+<p>
+    <a href="<c:url value='/courses' />">View Courses</a>
+</p>
+
+<p>
+    <a href="${pageContext.request.contextPath}/dashboard">Go to Dashboard</a>
+</p>
 </body>
 </html>

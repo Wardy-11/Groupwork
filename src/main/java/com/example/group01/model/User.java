@@ -89,7 +89,7 @@ public class User {
         this.id = id;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Achievement> achievements;
 
     public List<Achievement> getAchievements() {
