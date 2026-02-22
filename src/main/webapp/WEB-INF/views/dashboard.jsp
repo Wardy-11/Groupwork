@@ -56,7 +56,7 @@
         <p>Status: <span style="color: #107C10; font-weight: bold;">${course.status}</span></p>
 
         <div class="button-group">
-            <a href="${course.link}" target="_blank" class="btn btn-blue">Resume Course</a>
+            <a href="${course.url}" target="_blank" class="btn btn-blue">Resume Course</a>
 
             <form action="/complete-course" method="post" style="margin: 0;">
                 <input type="hidden" name="courseId" value="${course.id}">
@@ -76,7 +76,7 @@
         <p>Explore this IBM SkillsBuild course.</p>
 
         <div class="button-group">
-            <a href="${course.link}" target="_blank" class="btn btn-blue">View Details</a>
+            <a href="${course.url}" target="_blank" class="btn btn-blue">View Details</a>
 
             <form action="/start-course" method="post" style="margin: 0;">
                 <input type="hidden" name="courseId" value="${course.id}">
@@ -97,7 +97,7 @@
     <div class="course-card" style="background-color: #f9f9f9; border-color: #eee;">
         <h3 style="color: #888;">${course.title} (Completed ✅)</h3>
         <div class="button-group">
-            <a href="${course.link}" target="_blank" class="btn btn-blue" style="background-color: #666;">Review Material</a>
+            <a href="${course.url}" target="_blank" class="btn btn-blue" style="background-color: #666;">Review Material</a>
         </div>
     </div>
 </c:forEach>

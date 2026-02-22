@@ -1,77 +1,40 @@
 package com.example.group01.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "courses")
 public class Course {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String title;
     private String description;
     private String level;
     private String duration;
     private String url;
+    private String status;
 
-    public Course() {
-    }
+    public Course() {}
 
-    public Course(String id, String title, String description,
-                  String level, String duration, String url) {
-        this.id = id;
+    public Course(String title, String description, String level, String duration, String url, String status) {
         this.title = title;
         this.description = description;
         this.level = level;
         this.duration = duration;
         this.url = url;
-    }
-    public String getId() {
-        return id;
+        this.status = status;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getLevel() { return level; }
+    public String getDuration() { return duration; }
+    public String getUrl() { return url; }
+    public String getStatus() { return status; }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
+    public void setStatus(String status) { this.status = status; }
 }

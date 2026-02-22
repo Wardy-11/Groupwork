@@ -2,12 +2,9 @@ package com.example.group01.controller;
 
 import com.example.group01.model.Course;
 import com.example.group01.repository.CourseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,59 +12,39 @@ import java.util.stream.Collectors;
 @Controller
 public class DashboardController {
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+
+    public DashboardController(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
+    }
 
     @GetMapping("/dashboard")
-    public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+    public String dashboard(String keyword, Model model) {
 
-        List<Course> coursesDisplay;
+        List<Course> courses;
 
         if (keyword != null && !keyword.isEmpty()) {
-
-            coursesDisplay = courseRepository.findByTitleContainingIgnoreCase(keyword);
+            courses = courseRepository.findByTitleContainingIgnoreCase(keyword);
         } else {
-
-            coursesDisplay = courseRepository.findAll();
+            courses = courseRepository.findAll();
         }
 
-        List<Course> startedCourses = coursesDisplay.stream()
-                .filter(c -> "STARTED".equals(c.getStatus()))
+        List<Course> started = courses.stream()
+                .filter(c -> "Started".equalsIgnoreCase(c.getStatus()))
                 .collect(Collectors.toList());
 
-        List<Course> availableCourses = coursesDisplay.stream()
-                .filter(c -> "AVAILABLE".equals(c.getStatus()))
+        List<Course> completed = courses.stream()
+                .filter(c -> "Completed".equalsIgnoreCase(c.getStatus()))
                 .collect(Collectors.toList());
 
-        model.addAttribute("startedCourses", startedCourses);
-        model.addAttribute("availableCourses", availableCourses);
-
-        List<Course> completedCourses = coursesDisplay.stream()
-                .filter(c -> "COMPLETED".equals(c.getStatus()))
+        List<Course> available = courses.stream()
+                .filter(c -> c.getStatus() == null || "Available".equalsIgnoreCase(c.getStatus()))
                 .collect(Collectors.toList());
 
-        model.addAttribute("completedCourses", completedCourses);
+        model.addAttribute("startedCourses", started);
+        model.addAttribute("completedCourses", completed);
+        model.addAttribute("availableCourses", available);
 
         return "dashboard";
-    }
-
-    @PostMapping("/complete-course")
-    public String completeCourse(@RequestParam("courseId") Long id) {
-
-        Course course = courseRepository.findById(id).orElseThrow();
-
-        course.setStatus("COMPLETED");
-
-        courseRepository.save(course);
-
-        return "redirect:/dashboard";
-    }
-
-    @PostMapping("/start-course")
-    public String startCourse(@RequestParam("courseId") Long id) {
-        Course course = courseRepository.findById(id).orElseThrow();
-        course.setStatus("STARTED");
-        courseRepository.save(course);
-        return "redirect:/dashboard";
     }
 }

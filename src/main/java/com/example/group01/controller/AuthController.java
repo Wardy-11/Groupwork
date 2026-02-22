@@ -1,23 +1,28 @@
 package com.example.group01.controller;
 
+import com.example.group01.model.User;
+import com.example.group01.repository.UserRepository;
+import com.example.group01.service.AchievementService;
 import com.example.group01.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-/**
- * Handles authentication-related requests such as login, registration,
- * logout and the post-login homepage. 
- */
 @Controller
 public class AuthController {
-    private final UserService userService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AchievementService achievementService;
 
     private static final String ERROR_ATTR = "error";
 
@@ -36,7 +41,6 @@ public class AuthController {
             String course,
             Model model
     ) {
-
         if (firstName == null || firstName.isBlank()) {
             model.addAttribute(ERROR_ATTR, "First name is required.");
             return "register";
@@ -74,12 +78,8 @@ public class AuthController {
             return "register";
         }
 
-        // registration succeeded, send user to login page
         return "redirect:/login";
     }
-
-
-
 
     @GetMapping("/login")
     public String showLoginForm() {
@@ -93,8 +93,55 @@ public class AuthController {
     }
 
     @GetMapping("/courses")
-    public String showHomepage() {
+    public String showCourses() {
         return "courses";
     }
 
+    @GetMapping("/homepage")
+    public String home() {
+        return "homepage";
+    }
+
+    @GetMapping("/profile")
+    public String viewProfile(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        model.addAttribute("user", user);
+        model.addAttribute("achievements", user.getAchievements());
+
+        return "profile";
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(User formUser, Authentication authentication, Model model) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        user.setFirstName(formUser.getFirstName());
+        user.setLastName(formUser.getLastName());
+        user.setCourse(formUser.getCourse());
+
+        if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
+            user.setPassword(userService.encodePassword(formUser.getPassword()));
+        }
+
+        userRepository.save(user);
+
+        model.addAttribute("user", user);
+        model.addAttribute("achievements", user.getAchievements());
+        model.addAttribute("success", "Profile updated successfully!");
+
+        return "profile";
+    }
+
+    @PostMapping("/unlock-achievement")
+    public String unlockAchievement(Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        achievementService.unlockAchievement(user, "First Login");
+
+        return "redirect:/profile";
+    }
 }
