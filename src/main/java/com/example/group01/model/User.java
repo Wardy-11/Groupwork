@@ -37,6 +37,12 @@ public class User {
     @Column(nullable = false, unique = true, length = 64)
     private String username;
 
+    @Column(nullable = false)
+    private long xp = 0;
+
+    @Column(nullable = false)
+    private int level = 1;
+
     private String role;
     private String course;
     public String getRole() {
@@ -109,5 +115,21 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public long getXp() {
+        return xp;
+    }
+
+    public void setXp(long xp) {
+        this.xp = xp;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }
