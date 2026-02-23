@@ -5,7 +5,7 @@
     <title>My Profile</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 2rem; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .container { max-width: 50%; margin: 0 auto; background: white; padding: 20px 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         h1, h2 { color: #333; text-align: center; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
@@ -19,7 +19,7 @@
 <body>
 <div class="container">
     <h1>My Profile</h1>
-    <p style="text-align:center;">Level: <strong>${user.level}</strong></p>
+    <p style="text-align:center; font-size:1.5rem;">Level: <strong>${user.level}</strong></p>
 
     <form action="<c:url value='/profile' />" method="post">
         <div class="form-group">
