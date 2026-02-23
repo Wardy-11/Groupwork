@@ -2,6 +2,7 @@ package com.example.group01.controller;
 
 import com.example.group01.model.User;
 import com.example.group01.repository.UserRepository;
+import com.example.group01.service.AchievementService;
 import com.example.group01.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,23 +12,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.List;
-
-/**
- * Handles authentication-related requests such as login, registration,
- * logout and the post-login homepage. 
- */
 @Controller
 public class AuthController {
+
     @Autowired
     private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private AchievementService achievementService;
 
     private static final String ERROR_ATTR = "error";
 
@@ -46,7 +41,6 @@ public class AuthController {
             String course,
             Model model
     ) {
-
         if (firstName == null || firstName.isBlank()) {
             model.addAttribute(ERROR_ATTR, "First name is required.");
             return "register";
@@ -84,12 +78,8 @@ public class AuthController {
             return "register";
         }
 
-        // registration succeeded, send user to login page
         return "redirect:/login";
     }
-
-
-
 
     @GetMapping("/login")
     public String showLoginForm() {
@@ -103,12 +93,12 @@ public class AuthController {
     }
 
     @GetMapping("/courses")
-    public String showHomepage() {
+    public String showCourses() {
         return "courses";
     }
 
     @GetMapping("/homepage")
-    public String showHomePage() {
+    public String home() {
         return "homepage";
     }
 
@@ -118,15 +108,9 @@ public class AuthController {
         User user = userRepository.findByEmail(email);
 
         model.addAttribute("user", user);
-        return "profile";
-    }
+        model.addAttribute("achievements", user.getAchievements());
 
-    @GetMapping("/leaderboard")
-    public String viewLeaderboard(Model model) {
-        List<User> users = userRepository.findAll();
-        List<User> sortedUsers = users.sort(User.xp); //trying to figure out how list sorting works, xp needs implementing to find out.
-        model.addAttribute("users", sortedUsers);
-        return "leaderboard";
+        return "profile";
     }
 
     @PostMapping("/profile")
@@ -139,15 +123,25 @@ public class AuthController {
         user.setCourse(formUser.getCourse());
 
         if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
-            //user.setPassword(userService.encodePassword(formUser.getPassword()));
-            user.setPassword(formUser.getPassword());
+            user.setPassword(userService.encodePassword(formUser.getPassword()));
         }
 
         userRepository.save(user);
 
         model.addAttribute("user", user);
+        model.addAttribute("achievements", user.getAchievements());
         model.addAttribute("success", "Profile updated successfully!");
+
         return "profile";
     }
 
+    @PostMapping("/unlock-achievement")
+    public String unlockAchievement(Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        achievementService.unlockAchievement(user, "First Login");
+
+        return "redirect:/profile";
+    }
 }
