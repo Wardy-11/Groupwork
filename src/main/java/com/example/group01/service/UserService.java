@@ -21,6 +21,7 @@ public class UserService {
 
     private static final long course_xp = 75;
     private static final long level_xp = 100;
+    private static final long achievement_xp = 50;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -101,6 +102,7 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
+
     public void awardCourseCompletionXp() {
 
         Authentication auth = SecurityContextHolder
@@ -125,6 +127,32 @@ public class UserService {
         userRepository.save(user);
 
     }
+
+    public void awardAchievementXp() {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("No authenticated user found");
+        }
+
+        String email = auth.getName(); // this is your logged-in identifier
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found for email: " + email);
+        }
+
+        long newXp = user.getXp() + achievement_xp;
+        user.setXp(newXp);
+        user.setLevel(calculateLevel(newXp));
+
+        userRepository.save(user);
+
+    }
+
 
     private int calculateLevel(long xp) {
         return (int) (xp / level_xp) + 1;

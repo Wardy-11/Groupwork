@@ -16,7 +16,7 @@
         <c:forEach var="user" items="${users}" varStatus="loop">
             <tr>
                 <td>${loop.index + 1}</td>
-                <td>${user.firstName + " " + user.lastName}</td>
+                <td>${user.firstName} ${user.lastName}</td>
                 <td>${user.xp}</td>
             </tr>
         </c:forEach>

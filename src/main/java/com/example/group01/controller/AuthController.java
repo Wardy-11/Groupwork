@@ -12,6 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 @Controller
 public class AuthController {
 
@@ -139,9 +143,22 @@ public class AuthController {
     public String unlockAchievement(Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-
+        userService.awardAchievementXp();
         achievementService.unlockAchievement(user, "First Login");
 
         return "redirect:/profile";
+    }
+
+    @GetMapping("/leaderboard")
+    public String showLeaderboard(Model model) {
+        List<User> users = userRepository.findAll();
+        users.sort(new Comparator<User>() {
+            public int compare(User o1, User o2) {
+                if (o1.getXp() > o2.getXp()) return -1;
+                if (o1.getXp() < o2.getXp()) return 1;
+                return 0;
+            }});
+        model.addAttribute("users", users);
+        return "leaderboard";
     }
 }
