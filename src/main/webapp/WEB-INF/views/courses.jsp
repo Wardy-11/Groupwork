@@ -6,14 +6,14 @@
     <title>IBM SkillsBuild Courses</title>
     <meta charset="UTF-8" />
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f9;}
+        .grid { display: grid; grid-template-rows: repeat(2, 1fr); gap: 16px; }
+        .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; background-color: white; margin: 6px;}
         .meta { color: #555; font-size: 14px; display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-        .actions { margin-top: 10px; display: flex; gap: 10px; align-items: center; }
+        .actions {display: inline-flex; align-items: center; }
         .error { padding: 10px; border: 1px solid #ffb3b3; background: #ffecec; border-radius: 8px; margin-bottom: 12px; }
         .ok { padding: 10px; border: 1px solid #b6f2c1; background: #eaffef; border-radius: 8px; margin-bottom: 12px; }
-        button { padding: 8px 12px; cursor: pointer; }
+        button { padding: 10px; background-color: #005A9E; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
         button[disabled] { cursor: not-allowed; opacity: 0.6; }
         a { text-decoration: none; }
     </style>
@@ -31,18 +31,11 @@
 <div id="msg"></div>
 
 <div class="grid">
-    <div class="card">
-        <h2>All Courses</h2>
-        <div id="courses">Loading…</div>
+    <h2>All Courses</h2>
+    <div class="actions">
+        <button onclick="loadCourses()">Refresh</button>
     </div>
-
-    <div class="card">
-        <h2>My Started Courses</h2>
-        <div id="myCourses">Loading…</div>
-        <div class="actions">
-            <button onclick="loadMyCourses()">Refresh</button>
-        </div>
-    </div>
+    <div id="courseList">Loading…</div>
 </div>
 
 <script>
@@ -54,11 +47,11 @@
     }[m])); }
 
     function renderCourses(courses){
-        list.innerHTML = "";
+        list.innerHTML = ``;
         courses.forEach(c => {
             const card = document.createElement("div");
             card.className = "course-card";
-            card.innerHTML = `
+            card.innerHTML = `<div class="card">
       <h3>${esc(c.title)}</h3>
       <p>Status: ${esc(c.status)}</p>
       <div class="meta">
@@ -69,6 +62,7 @@
           <button>Start Course</button>
         </a>
       </div>
+      </div>
     `;
             list.appendChild(card);
         });
@@ -78,8 +72,8 @@
         fetch("/api/courses")
             .then(res => res.json())
             .then(data => {
-                loading.style.display = "none";
                 renderCourses(data);
+                loading.style.display = "none";
             })
             .catch(() => {
                 loading.textContent = "Failed to load courses.";

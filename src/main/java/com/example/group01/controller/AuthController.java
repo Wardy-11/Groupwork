@@ -121,20 +121,22 @@ public class AuthController {
     public String updateProfile(User formUser, Authentication authentication, Model model) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-
-        user.setFirstName(formUser.getFirstName());
-        user.setLastName(formUser.getLastName());
-        user.setCourse(formUser.getCourse());
-
-        if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
-            user.setPassword(userService.encodePassword(formUser.getPassword()));
+        try{
+            validate(model, formUser.getFirstName(), formUser.getLastName(), formUser.getPassword());
+            user.setFirstName(formUser.getFirstName());
+            user.setLastName(formUser.getLastName());
+            user.setCourse(formUser.getCourse());
+            if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
+                user.setPassword(userService.encodePassword(formUser.getPassword()));
+            }
+            userRepository.save(user);
+            model.addAttribute("user", user);
+            model.addAttribute("achievements", user.getAchievements());
+            model.addAttribute("success", "Profile updated successfully!");
         }
-
-        userRepository.save(user);
-
-        model.addAttribute("user", user);
-        model.addAttribute("achievements", user.getAchievements());
-        model.addAttribute("success", "Profile updated successfully!");
+        catch (Exception e){
+            model.addAttribute(ERROR_ATTR, e.getMessage());
+        }
 
         return "profile";
     }
@@ -161,4 +163,19 @@ public class AuthController {
         model.addAttribute("users", users);
         return "leaderboard";
     }
+
+    public void validate(Model model, String firstName, String lastName, String password) {
+        if (firstName == null || firstName.isBlank()) {
+            model.addAttribute(ERROR_ATTR, "First name is required.");
+        }
+
+        if (lastName == null || lastName.isBlank()) {
+            model.addAttribute(ERROR_ATTR, "Last name is required.");
+        }
+
+        if (password == null || password.length() < 6) {
+            model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
+        }
+    }
 }
+
