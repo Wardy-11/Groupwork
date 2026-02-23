@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +30,18 @@ public class User {
     @Size(min = 6, message = "Password must be at least 6 characters")
     @NotBlank(message = "Password is required")
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Achievement> achievements;
+
+    @Column(nullable = false, unique = true, length = 64)
+    private String username;
+
+    @Column(nullable = false)
+    private long xp = 0;
+
+    @Column(nullable = false)
+    private int level = 1;
 
     private String role;
     private String course;
@@ -86,5 +99,37 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Achievement> getAchievements() {
+        return achievements;
+    }
+
+    public void setAchievements(List<Achievement> achievements) {
+        this.achievements = achievements;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public long getXp() {
+        return xp;
+    }
+
+    public void setXp(long xp) {
+        this.xp = xp;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }

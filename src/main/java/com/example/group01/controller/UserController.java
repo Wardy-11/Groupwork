@@ -34,10 +34,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/courses")
-    public Set<Course> getMyCourses(@PathVariable Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return user.getCourses();
+    public String getMyCourses(@PathVariable Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return user.getCourse();
     }
 
     @PostMapping("/{userId}/courses/{courseId}")
@@ -45,10 +44,10 @@ public class UserController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findById(Long.valueOf(courseId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
-        user.getCourses().add(course);
+        user.setCourse(String.valueOf(course));
         userRepository.save(user);
     }
 }

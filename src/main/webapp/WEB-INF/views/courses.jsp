@@ -46,106 +46,47 @@
 </div>
 
 <script>
-    const msgDiv = document.getElementById("msg");
-    const coursesDiv = document.getElementById("courses");
-    const myCoursesDiv = document.getElementById("myCourses");
+    const list = document.getElementById("courseList");
+    const loading = document.getElementById("loading");
 
-    function showMsg(type, text) {
-        msgDiv.innerHTML = `<div class="${type}">${text}</div>`;
-        setTimeout(() => msgDiv.innerHTML = "", 4000);
+    function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[m])); }
+
+    function renderCourses(courses){
+        list.innerHTML = "";
+        courses.forEach(c => {
+            const card = document.createElement("div");
+            card.className = "course-card";
+            card.innerHTML = `
+      <h3>${esc(c.title)}</h3>
+      <p>Status: ${esc(c.status)}</p>
+      <div class="meta">
+        <span><b>Course ID:</b> ${esc(c.id)}</span>
+      </div>
+      <div style="margin-top:10px;">
+        <a href="${esc(c.link)}" target="_blank">
+          <button>Start Course</button>
+        </a>
+      </div>
+    `;
+            list.appendChild(card);
+        });
     }
 
-    function esc(s) {
-        return String(s)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll("\"", "&quot;")
-            .replaceAll("'", "&#039;");
+    function loadCourses(){
+        fetch("/api/courses")
+            .then(res => res.json())
+            .then(data => {
+                loading.style.display = "none";
+                renderCourses(data);
+            })
+            .catch(() => {
+                loading.textContent = "Failed to load courses.";
+            });
     }
 
-    let myCourseIds = new Set();
-
-    async function loadCourses() {
-        try {
-            coursesDiv.textContent = "Loading courses…";
-            const res = await fetch("/api/courses");
-            if (!res.ok) throw new Error(`Failed to load courses (${res.status})`);
-            const courses = await res.json();
-
-            if (!Array.isArray(courses) || courses.length === 0) {
-                coursesDiv.innerHTML = "<p>No courses found.</p>";
-                return;
-            }
-
-            coursesDiv.innerHTML = courses.map(c => {
-                const started = myCourseIds.has(c.id);
-                return `
-                    <div class="card" style="margin-top: 10px;">
-                        <h3 style="margin: 0 0 6px;">${esc(c.title)}</h3>
-                        <p style="margin: 0 0 8px;">${esc(c.description)}</p>
-                        <div class="meta">
-                            <span><b>Level:</b> ${esc(c.level)}</span>
-                            <span><b>Duration:</b> ${esc(c.duration)}</span>
-                        </div>
-                        <div class="actions">
-                            <button ${started ? "disabled" : ""} onclick="startCourse('${esc(c.id)}')">
-                                ${started ? "Started" : "Start"}
-                            </button>
-                            <a href="${esc(c.url)}" target="_blank" rel="noreferrer">Open course</a>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        } catch (e) {
-            coursesDiv.innerHTML = "";
-            showMsg("error", e.message);
-        }
-    }
-
-    async function loadMyCourses() {
-        try {
-            myCoursesDiv.textContent = "Loading your courses…";
-            const res = await fetch(`/api/users/${userId}/courses`);
-            if (!res.ok) throw new Error(`Failed to load your courses (${res.status})`);
-            const myCourses = await res.json();
-
-            myCourseIds = new Set((myCourses || []).map(c => c.id));
-
-            if (!Array.isArray(myCourses) || myCourses.length === 0) {
-                myCoursesDiv.innerHTML = "<p>You haven’t started any courses yet.</p>";
-            } else {
-                myCoursesDiv.innerHTML = `
-                    <ul>
-                        ${myCourses.map(c => `
-                            <li style="margin-bottom: 8px;">
-                                <b>${esc(c.title)}</b> — ${esc(c.level)} (${esc(c.duration)})
-                                - <a href="${esc(c.url)}" target="_blank" rel="noreferrer">Open</a>
-                            </li>
-                        `).join("")}
-                    </ul>
-                `;
-            }
-
-            await loadCourses(); // update "Started" buttons
-        } catch (e) {
-            myCoursesDiv.innerHTML = "";
-            showMsg("error", e.message);
-        }
-    }
-
-    async function startCourse(courseId) {
-        try {
-            const res = await fetch(`/api/users/${userId}/courses/${courseId}`, { method: "POST" });
-            if (!res.ok) throw new Error(`Failed to start course (${res.status})`);
-            showMsg("ok", "Course started!");
-            await loadMyCourses();
-        } catch (e) {
-            showMsg("error", e.message);
-        }
-    }
-
-    loadMyCourses();
+    loadCourses();
 </script>
 
 </body>

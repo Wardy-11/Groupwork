@@ -2,6 +2,7 @@ package com.example.group01.controller;
 
 import com.example.group01.model.Course;
 import com.example.group01.repository.CourseRepository;
+import com.example.group01.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +18,10 @@ public class DashboardController {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping("/dashboard")
     public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
@@ -55,6 +60,8 @@ public class DashboardController {
     public String completeCourse(@RequestParam("courseId") Long id) {
 
         Course course = courseRepository.findById(id).orElseThrow();
+
+        userService.awardCourseCompletionXp();
 
         course.setStatus("COMPLETED");
 
