@@ -7,14 +7,22 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 2rem; }
         .container { max-width: 450px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; border: 1px solid #ddd; text-align: center; }
-        .nav-link { display: block; padding: 12px; margin: 10px 0; background: #fff; border: 1px solid #005A9E; color: #005A9E; text-decoration: none; border-radius: 4px; font-weight: 600; transition: 0.2s; }
-        .nav-link:hover { background: #005A9E; color: white; }
-        .logout { color: #d9534f; border-color: #d9534f; }
-        .logout:hover { background: #d9534f; }
+        .nav-link { display: block; padding: 12px; margin: 10px 0; background: #005A9E; border: 1px solid #fff; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 600; transition: 0.2s; }
+        .nav-link:hover { background: #fff; color: #005A9E; border-color: #005A9E}
+        .logout { color: #fff; border-color: #fff; background:#d9534f;}
+        .logout:hover { background: #fff; color: #d9534f; border-color: #d9534f}
+        nav {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        nav a {
+            color: #005A9E;
+            text-decoration: none;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>Welcome to Your Homepage!</h1>
     <a href="<c:url value='/profile' />" class="nav-link">My Profile</a>
@@ -25,8 +33,5 @@
 </div>
 
 
-<p>
-    <a href="${pageContext.request.contextPath}/dashboard">Go to Dashboard</a>
-</p>
 </body>
 </html>
