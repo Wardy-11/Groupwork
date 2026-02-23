@@ -37,7 +37,6 @@
     </div>
     <div id="courseList">Loading…</div>
 </div>
-
 <script>
     const list = document.getElementById("courseList");
     const loading = document.getElementById("loading");
@@ -51,20 +50,47 @@
         courses.forEach(c => {
             const card = document.createElement("div");
             card.className = "course-card";
-            card.innerHTML = `<div class="card">
-      <h3>${esc(c.title)}</h3>
-      <p>Status: ${esc(c.status)}</p>
-      <div class="meta">
-        <span><b>Course ID:</b> ${esc(c.id)}</span>
-      </div>
-      <div style="margin-top:10px;">
-        <a href="${esc(c.link)}" target="_blank">
-          <button>Start Course</button>
-        </a>
-      </div>
-      </div>
-    `;
-            list.appendChild(card);
+            if(c.status !== "COMPLETED" && c.status !== "STARTED"){
+                card.innerHTML = `<div class="card">
+                <h3>${esc(c.title)}</h3>
+                <p>Status: ${esc(c.status)}</p>
+                <div class="meta">
+                <span><b>Course ID:</b> ${esc(c.id)}</span>
+                </div>
+                <div style="margin-top:10px;">
+                <a href="${esc(c.link)}" target="_blank">
+                    <button>Start Course</button>
+                </a>
+                </div>
+                </div>`;
+                list.appendChild(card);
+            }
+            else{
+                return;
+            }
+
+        });
+        courses.forEach(c => {
+            const card = document.createElement("div");
+            card.className = "course-card";
+            if(c.status === "COMPLETED" || c.status === "STARTED"){
+                card.innerHTML = `<div class="card">
+                <h3>${esc(c.title)}</h3>
+                <p>Status: ${esc(c.status)}</p>
+                <div class="meta">
+                <span><b>Course ID:</b> ${esc(c.id)}</span>
+                </div>
+                <div style="margin-top:10px;">
+                <a href="${esc(c.link)}" target="_blank">
+                    <button disabled>Start Course</button>
+                </a>
+                </div>
+                </div>`;
+                list.appendChild(card);
+            }
+            else{
+                return;
+            }
         });
     }
 
