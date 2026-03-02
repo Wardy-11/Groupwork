@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 
 <html>
 <head>
@@ -21,23 +22,42 @@
     <h1>My Profile</h1>
     <p style="text-align:center; font-size:1.5rem;">Level: <strong>${user.level}</strong></p>
 
+    <c:if test="${not empty error}">
+        <p style="color:red; font-weight:bold;">${error}</p>
+    </c:if>
+
+    <c:if test="${not empty success}">
+        <p style="color:green; font-weight:bold;">${success}</p>
+    </c:if>
+
     <form action="<c:url value='/profile' />" method="post">
         <div class="form-group">
             <label>First Name</label>
-            <input type="text" name="firstName" value="${user.firstName}" />
+            <input type="text" name="firstName" value="${user.firstName}" required />
         </div>
+
         <div class="form-group">
             <label>Last Name</label>
-            <input type="text" name="lastName" value="${user.lastName}" />
+            <input type="text" name="lastName" value="${user.lastName}" required />
         </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value="${user.email}" required />
+            <c:if test="${not empty error}">
+                <p style="color:red;">${error}</p>
+            </c:if>        </div>
+
         <div class="form-group">
             <label>Course</label>
             <input type="text" name="course" value="${user.course}" />
         </div>
+
         <div class="form-group">
             <label>New Password (optional)</label>
-            <input type="password" name="password" />
+            <input type="password" name="password" minlength="6" />
         </div>
+
         <button type="submit" class="btn">Update Profile</button>
     </form>
 

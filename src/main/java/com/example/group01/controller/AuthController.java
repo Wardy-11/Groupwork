@@ -11,6 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -110,7 +113,6 @@ public class AuthController {
     public String viewProfile(Model model, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-
         model.addAttribute("user", user);
         model.addAttribute("achievements", user.getAchievements());
 
@@ -118,25 +120,42 @@ public class AuthController {
     }
 
     @PostMapping("/profile")
-    public String updateProfile(User formUser, Authentication authentication, Model model) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
-        try{
-            validate(model, formUser.getFirstName(), formUser.getLastName(), formUser.getPassword());
-            user.setFirstName(formUser.getFirstName());
-            user.setLastName(formUser.getLastName());
-            user.setCourse(formUser.getCourse());
-            if (formUser.getPassword() != null && !formUser.getPassword().isEmpty()) {
-                user.setPassword(userService.encodePassword(formUser.getPassword()));
-            }
-            userRepository.save(user);
-            model.addAttribute("user", user);
+    public String updateProfile(
+            @Valid @ModelAttribute("user") User formUser,
+            BindingResult bindingResult,
+            Authentication authentication,
+            Model model) {
+
+        String currentEmail = authentication.getName();
+        User user = userRepository.findByEmail(currentEmail);
+
+        if (bindingResult.hasErrors()) {
             model.addAttribute("achievements", user.getAchievements());
-            model.addAttribute("success", "Profile updated successfully!");
+            model.addAttribute("error", bindingResult.getFieldError().getDefaultMessage());
+            return "profile";
         }
-        catch (Exception e){
-            model.addAttribute(ERROR_ATTR, e.getMessage());
+
+        if (!user.getEmail().equals(formUser.getEmail())
+                && userRepository.findByEmail(formUser.getEmail()) != null) {
+            model.addAttribute("error", "Email already in use.");
+            model.addAttribute("achievements", user.getAchievements());
+            return "profile";
         }
+
+        user.setFirstName(formUser.getFirstName());
+        user.setLastName(formUser.getLastName());
+        user.setEmail(formUser.getEmail());
+        user.setCourse(formUser.getCourse());
+
+        if (formUser.getPassword() != null && !formUser.getPassword().isBlank()) {
+            user.setPassword(userService.encodePassword(formUser.getPassword()));
+        }
+
+        userRepository.save(user);
+
+        model.addAttribute("user", user);
+        model.addAttribute("achievements", user.getAchievements());
+        model.addAttribute("success", "Profile updated successfully!");
 
         return "profile";
     }
@@ -162,20 +181,6 @@ public class AuthController {
             }});
         model.addAttribute("users", users);
         return "leaderboard";
-    }
-
-    public void validate(Model model, String firstName, String lastName, String password) {
-        if (firstName == null || firstName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "First name is required.");
-        }
-
-        if (lastName == null || lastName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "Last name is required.");
-        }
-
-        if (password == null || password.length() < 6) {
-            model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
-        }
     }
 }
 
