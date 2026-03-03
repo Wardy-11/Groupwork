@@ -58,8 +58,8 @@
                 <span><b>Course ID:</b> ${esc(c.id)}</span>
                 </div>
                 <div style="margin-top:10px;">
-                <a href="${esc(c.link)}" target="_blank">
-                    <button>Start Course</button>
+                <a href="${esc(c.url)}">
+                    <button href="${esc(c.url)}">Start Course</button>
                 </a>
                 </div>
                 </div>`;
@@ -81,8 +81,8 @@
                 <span><b>Course ID:</b> ${esc(c.id)}</span>
                 </div>
                 <div style="margin-top:10px;">
-                <a href="${esc(c.link)}" target="_blank">
-                    <button disabled>Start Course</button>
+                <a href="${esc(c.url)}">
+                    <button href="${esc(c.url)}" disabled>Start Course</button>
                 </a>
                 </div>
                 </div>`;
@@ -95,7 +95,7 @@
     }
 
     function loadCourses(){
-        fetch("/api/courses")
+        fetch("api/courses")
             .then(res => res.json())
             .then(data => {
                 renderCourses(data);
