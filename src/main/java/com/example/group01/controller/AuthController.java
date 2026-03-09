@@ -246,5 +246,33 @@ public class AuthController {
         user = userRepository.save(user);
         return "redirect:/" + source;
     }
+
+    @GetMapping("/friendsLeaderboard")
+    public String showFriendsLeaderboard(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        
+        List<User> friendsUsers = new ArrayList<>();
+        friendsUsers.add(user);
+        
+        if (user.getFriends() != null && !user.getFriends().isEmpty()) {
+            for (String friendUsername : user.getFriends()) {
+                User friendUser = userRepository.findByUsername(friendUsername);
+                if (friendUser != null) {
+                    friendsUsers.add(friendUser);
+                }
+            }
+        }
+        
+        friendsUsers.sort(new Comparator<User>() {
+            public int compare(User o1, User o2) {
+                if (o1.getXp() > o2.getXp()) return -1;
+                if (o1.getXp() < o2.getXp()) return 1;
+                return 0;
+            }});
+        
+        model.addAttribute("users", friendsUsers);
+        return "friendsLeaderboard";
+    }
 }
 

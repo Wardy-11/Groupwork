@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<String> findFriendsByUsername(@Param("userId") Long userId, @Param("username") String username);
 
     List<User> findAllByUsernameContainingIgnoreCase(String keyword);
+    
+    User findByUsername(String username);
 }
