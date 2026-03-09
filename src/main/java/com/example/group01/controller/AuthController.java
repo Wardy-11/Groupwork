@@ -111,7 +111,16 @@ public class AuthController {
     }
 
     @GetMapping("/homepage")
-    public String home() {
+    public String home(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+        
+        List<Course> startedCourses = courseRepository.findAll().stream()
+                .filter(c -> "STARTED".equals(c.getStatus()))
+                .collect(Collectors.toList());
+        model.addAttribute("startedCourses", startedCourses);
+        
         return "homepage";
     }
 
