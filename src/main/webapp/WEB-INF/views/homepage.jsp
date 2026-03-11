@@ -30,7 +30,6 @@
     <a href="<c:url value='/friends'/>" class="nav-link">Friends</a>
     <a href="<c:url value='/courses' />" class="nav-link">View Courses</a>
     <a href="<c:url value='/leaderboard' />" class="nav-link">Leaderboard</a>
-    <a href="<c:url value='/friendsLeaderboard' />" class="nav-link">Friends Leaderboard</a>
     <a href="<c:url value='/logout' />" class="nav-link logout">Logout</a>
 </div>
 
