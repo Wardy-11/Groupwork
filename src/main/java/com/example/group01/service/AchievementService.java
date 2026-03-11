@@ -16,14 +16,15 @@ public class AchievementService {
     @Autowired
     private UserRepository userRepository;
 
-    public void unlockAchievement(User user, String title) {
+    public boolean unlockAchievement(User user, String title) {
 
         if (user.getAchievements() != null) {
             boolean alreadyUnlocked = user.getAchievements().stream()
                     .anyMatch(a -> a.getTitle().equals(title));
 
             if (alreadyUnlocked) {
-                return;
+                // If they already have it, return false so the Controller knows NOT to give XP
+                return false;
             }
         }
 
@@ -39,5 +40,9 @@ public class AchievementService {
         }
 
         userRepository.save(user);
+
+        // If we made it all the way down here, it's a brand new achievement!
+        // Return true so the Controller knows to award the XP!
+        return true;
     }
 }

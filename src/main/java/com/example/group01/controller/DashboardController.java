@@ -2,6 +2,9 @@ package com.example.group01.controller;
 
 import com.example.group01.model.Course;
 import com.example.group01.repository.CourseRepository;
+import org.springframework.security.core.Authentication;
+import com.example.group01.repository.UserRepository;
+import com.example.group01.model.User;
 import com.example.group01.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,9 +25,22 @@ public class DashboardController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
 
     @GetMapping("/dashboard")
-    public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+    public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword, Model model, Authentication authentication) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        boolean hasCourseMaster = false;
+        if (user.getAchievements() != null) {
+            hasCourseMaster = user.getAchievements().stream()
+                    .anyMatch(a -> a.getTitle().equals("Course Master (3 Courses)"));
+        }
+        model.addAttribute("hasCourseMaster", hasCourseMaster);
 
         List<Course> coursesDisplay;
 
@@ -52,6 +68,10 @@ public class DashboardController {
                 .collect(Collectors.toList());
 
         model.addAttribute("completedCourses", completedCourses);
+
+        // Count how many courses are completed and send it to the JSP
+        int completedCourseCount = completedCourses.size();
+        model.addAttribute("completedCourseCount", completedCourseCount);
 
         return "dashboard";
     }
