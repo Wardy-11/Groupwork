@@ -45,6 +45,16 @@ public class User {
 
     private String role;
     private String course;
+
+    @ElementCollection
+    @CollectionTable(name = "user_friends", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "friend_username")
+    private List<String> friends;
+
+    public List<String> getFriends() {return friends;}
+
+    public void setFriends(List<String> friends) {this.friends = friends;}
+
     public String getRole() {
         return role;
     }

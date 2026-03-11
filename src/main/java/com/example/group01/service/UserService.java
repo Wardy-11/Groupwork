@@ -10,6 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Business operations related to {@link User} entities such as
  * registration and credential validation.
@@ -178,5 +181,15 @@ public class UserService {
             }
         }
         throw new RuntimeException("Could not generate unique username for " + base);
+    }
+
+    public List<String> removeFriend(List<String> friends, String username) {
+        List<String> users = new ArrayList<>();
+        for (String friend : friends) {
+            if (!friend.equals(username)){
+                users.add(friend);
+            }
+        }
+        return users;
     }
 }

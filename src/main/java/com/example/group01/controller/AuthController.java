@@ -1,6 +1,8 @@
 package com.example.group01.controller;
 
+import com.example.group01.model.Course;
 import com.example.group01.model.User;
+import com.example.group01.repository.CourseRepository;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.service.AchievementService;
 import com.example.group01.service.UserService;
@@ -11,13 +13,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Autowired
     private UserService userService;
@@ -97,7 +105,8 @@ public class AuthController {
     }
 
     @GetMapping("/courses")
-    public String showCourses() {
+    public String showCourses(Model model) {
+        model.addAttribute("courses", courseRepository.findAll());
         return "courses";
     }
 
@@ -176,6 +185,94 @@ public class AuthController {
         if (password == null || password.length() < 6) {
             model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
         }
+    }
+
+    @GetMapping("/friends")
+    public String showFriends(Model model,Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
+        List<String> friendsDisplay;
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            friendsDisplay = userRepository.findFriendsByUsername(user.getId(), keyword);
+        } else {
+
+            friendsDisplay = user.getFriends();
+        }
+
+        model.addAttribute("friends", friendsDisplay);
+        model.addAttribute("currentUser", user);
+        return "friends";
+    }
+
+    @GetMapping("/allUsers")
+    public String showAllUsers(Model model, Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
+        List<User> usersDisplay;
+        List<String> usernameDisplay =  new ArrayList<>();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        if(keyword != null && !keyword.isEmpty()) {
+            usersDisplay = userRepository.findAllByUsernameContainingIgnoreCase(keyword);
+        }
+        else {
+            usersDisplay = userRepository.findAll();
+        }
+        for(User account : usersDisplay) {
+            usernameDisplay.add(account.getUsername());
+        }
+        model.addAttribute("friends", usernameDisplay);
+        model.addAttribute("currentUser", user);
+        return "allUsers";
+    }
+
+    @GetMapping("/removeFriend")
+    public String removeFriend(Authentication authentication, @RequestParam("username") String username, @RequestParam("source") String source) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        List<String> friends = user.getFriends();
+        List<String> newFriendList = userService.removeFriend(friends, username);
+        user.setFriends(newFriendList);
+        user = userRepository.save(user);
+        return "redirect:/"+source;
+    }
+
+    @GetMapping("/addFriend")
+    public String addFriend(Authentication authentication, @RequestParam("username") String username, @RequestParam("source") String source) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        List<String> friends = user.getFriends();
+        friends.add(username);
+        user.setFriends(friends);
+        user = userRepository.save(user);
+        return "redirect:/" + source;
+    }
+
+    @GetMapping("/friendsLeaderboard")
+    public String showFriendsLeaderboard(Model model, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        
+        List<User> friendsUsers = new ArrayList<>();
+        friendsUsers.add(user);
+        
+        if (user.getFriends() != null && !user.getFriends().isEmpty()) {
+            for (String friendUsername : user.getFriends()) {
+                User friendUser = userRepository.findByUsername(friendUsername);
+                if (friendUser != null) {
+                    friendsUsers.add(friendUser);
+                }
+            }
+        }
+        
+        friendsUsers.sort(new Comparator<User>() {
+            public int compare(User o1, User o2) {
+                if (o1.getXp() > o2.getXp()) return -1;
+                if (o1.getXp() < o2.getXp()) return 1;
+                return 0;
+            }});
+        
+        model.addAttribute("users", friendsUsers);
+        return "friendsLeaderboard";
     }
 }
 

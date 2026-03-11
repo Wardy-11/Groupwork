@@ -27,8 +27,10 @@
     <h1>Welcome to Your Homepage!</h1>
     <a href="<c:url value='/profile' />" class="nav-link">My Profile</a>
     <a href="<c:url value='/dashboard' />" class="nav-link">Student Dashboard</a>
+    <a href="<c:url value='/friends'/>" class="nav-link">Friends</a>
     <a href="<c:url value='/courses' />" class="nav-link">View Courses</a>
     <a href="<c:url value='/leaderboard' />" class="nav-link">Leaderboard</a>
+    <a href="<c:url value='/friendsLeaderboard' />" class="nav-link">Friends Leaderboard</a>
     <a href="<c:url value='/logout' />" class="nav-link logout">Logout</a>
 </div>
 
