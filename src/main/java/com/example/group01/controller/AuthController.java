@@ -115,12 +115,12 @@ public class AuthController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
-        
+
         List<Course> startedCourses = courseRepository.findAll().stream()
                 .filter(c -> "STARTED".equals(c.getStatus()))
                 .collect(Collectors.toList());
         model.addAttribute("startedCourses", startedCourses);
-        
+
         return "homepage";
     }
 
@@ -169,16 +169,32 @@ public class AuthController {
         return "redirect:/profile";
     }
 
-    @GetMapping("/leaderboard")
-    public String showLeaderboard(Model model) {
+   @GetMapping("/leaderboard")
+    public String showLeaderboard(Model model, Authentication authentication) {
+        // Global leaderboard
         List<User> users = userRepository.findAll();
-        users.sort(new Comparator<User>() {
-            public int compare(User o1, User o2) {
-                if (o1.getXp() > o2.getXp()) return -1;
-                if (o1.getXp() < o2.getXp()) return 1;
-                return 0;
-            }});
+        users.sort(Comparator.comparingLong(User::getXp).reversed());
         model.addAttribute("users", users);
+
+        // Friends leaderboard (includes the current user)
+        String email = authentication.getName();
+        User currentUser = userRepository.findByEmail(email);
+
+        List<User> friendsUsers = new ArrayList<>();
+        friendsUsers.add(currentUser);
+
+        if (currentUser.getFriends() != null && !currentUser.getFriends().isEmpty()) {
+            for (String friendUsername : currentUser.getFriends()) {
+                User friendUser = userRepository.findByUsername(friendUsername);
+                if (friendUser != null) {
+                    friendsUsers.add(friendUser);
+                }
+            }
+        }
+
+        friendsUsers.sort(Comparator.comparingLong(User::getXp).reversed());
+        model.addAttribute("friendsUsers", friendsUsers);
+
         return "leaderboard";
     }
 
@@ -256,32 +272,6 @@ public class AuthController {
         return "redirect:/" + source;
     }
 
-    @GetMapping("/friendsLeaderboard")
-    public String showFriendsLeaderboard(Model model, Authentication authentication) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
-        
-        List<User> friendsUsers = new ArrayList<>();
-        friendsUsers.add(user);
-        
-        if (user.getFriends() != null && !user.getFriends().isEmpty()) {
-            for (String friendUsername : user.getFriends()) {
-                User friendUser = userRepository.findByUsername(friendUsername);
-                if (friendUser != null) {
-                    friendsUsers.add(friendUser);
-                }
-            }
-        }
-        
-        friendsUsers.sort(new Comparator<User>() {
-            public int compare(User o1, User o2) {
-                if (o1.getXp() > o2.getXp()) return -1;
-                if (o1.getXp() < o2.getXp()) return 1;
-                return 0;
-            }});
-        
-        model.addAttribute("users", friendsUsers);
-        return "friendsLeaderboard";
-    }
+
 }
 
