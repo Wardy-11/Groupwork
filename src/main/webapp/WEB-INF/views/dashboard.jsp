@@ -119,13 +119,33 @@
 
 <h1>Track your SkillsBuild Progress</h1>
 
-<form action="/dashboard" method="get">
-    <input type="text" name="keyword" class="search-box" placeholder="Search courses (e.g., 'Python')" value="${param.keyword}" />
-    <button type="submit" class="btn btn-blue">Search</button>
-    <c:if test="${not empty param.keyword}">
-        <a href="/dashboard" style="margin-left:10px; color:#666; font-size:0.9rem;">Clear Search</a>
-    </c:if>
-</form>
+
+<c:if test="${!hasCourseMaster}">
+    <div class="course-card" style="background-color: #e6f2ff; border-color: #b3d9ff; text-align: center; margin-top: 20px;">
+        <h2 style="color: #005A9E; margin-bottom: 10px;">🏆 Current Goal: Complete 3 Courses</h2>
+
+        <p style="font-size: 1.2rem; color: #333;">Progress: <strong>${completedCourseCount >= 3 ? 3 : completedCourseCount} / 3</strong></p>
+
+        <div style="width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 15px; overflow: hidden;">
+            <div style="width: ${completedCourseCount >= 3 ? 100 : (completedCourseCount / 3.0) * 100}%;
+                    height: 20px; background-color: #107C10; border-radius: 5px; transition: width 0.5s ease-in-out;"></div>
+        </div>
+
+        <c:if test="${completedCourseCount >= 3}">
+            <form action="<c:url value='/unlock-achievement' />" method="post" style="margin-top: 15px;">
+                <input type="hidden" name="achievementTitle" value="Course Master (3 Courses)">
+                <button type="submit" class="btn btn-green" style="font-size: 1.1rem; padding: 10px 20px;">Claim Level Up!</button>
+            </form>
+        </c:if>
+    </div>
+</c:if>
+
+<c:if test="${hasCourseMaster}">
+    <div class="course-card" style="background-color: #e8f5e9; border-color: #c8e6c9; text-align: center; margin-top: 20px;">
+        <h2 style="color: #2e7d32; margin-bottom: 0;">🎉 Goal Achieved: Course Master!</h2>
+        <p style="color: #666; margin-top: 5px;">Check your profile to see your rewards.</p>
+    </div>
+</c:if>
 
 <hr/>
 

@@ -160,11 +160,20 @@ public class AuthController {
     }
 
     @PostMapping("/unlock-achievement")
-    public String unlockAchievement(Authentication authentication) {
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email);
-        userService.awardAchievementXp();
-        achievementService.unlockAchievement(user, "First Login");
+    public String unlockAchievement(
+            @RequestParam(value = "achievementTitle", defaultValue = "First Login") String title,
+            Authentication authentication) {
+
+        String email = authentication.getName(); //
+        User user = userRepository.findByEmail(email); //
+
+        // 1. Try to unlock the specific achievement passed from the JSP
+        boolean isNewAchievement = achievementService.unlockAchievement(user, title);
+
+        // 2. ONLY award XP if they didn't already have it
+        if (isNewAchievement) {
+            userService.awardAchievementXp();
+        }
 
         return "redirect:/profile";
     }
