@@ -243,7 +243,9 @@ public class AuthController {
             usersDisplay = userRepository.findAll();
         }
         for(User account : usersDisplay) {
-            usernameDisplay.add(account.getUsername());
+            if(account.getUsername() != user.getUsername()){
+                usernameDisplay.add(account.getUsername());
+            }
         }
         model.addAttribute("friends", usernameDisplay);
         model.addAttribute("currentUser", user);
