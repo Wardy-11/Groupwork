@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 
 <!DOCTYPE html>
 <html>
@@ -7,7 +8,75 @@
     <meta charset="UTF-8">
     <title>SkillsBuild Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 2rem; background-color: #f4f7f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; }
+        
+        header {
+            background-color: #005A9E;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+        }
+        
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-divider {
+            width: 2px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 0 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s, opacity 0.2s;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-links a:hover {
+            color: #e0e0e0;
+            opacity: 0.9;
+        }
+        
+        .logout-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .logout-link:hover {
+            background-color: #fff;
+            color: #005A9E;
+        }
+
+        main { padding: 2rem; }
         h1 { color: #333; }
 
         .course-card {
@@ -33,16 +102,50 @@
     </style>
 </head>
 <body>
+<header>
+    <div class="header-container">
+        <a href="<c:url value='/homepage' />" class="brand">IBM SkillsBuild</a>
+        <div class="nav-divider"></div>
+        <nav class="nav-links">
+            <a href="<c:url value='/homepage' />">Home</a>
+            <a href="<c:url value='/profile' />">Profile</a>
+            <a href="<c:url value='/dashboard' />">Courses</a>
+            <a href="<c:url value='/leaderboard' />">Leaderboard</a>
+            <a href="<c:url value='/friends' />">Friends</a>
+        </nav>
+        <a href="<c:url value='/logout' />" class="logout-link">Logout</a>
+    </div>
+</header>
 
 <h1>Track your SkillsBuild Progress</h1>
 
-<form action="/dashboard" method="get">
-    <input type="text" name="keyword" class="search-box" placeholder="Search courses (e.g., 'Python')" value="${param.keyword}" />
-    <button type="submit" class="btn btn-blue">Search</button>
-    <c:if test="${not empty param.keyword}">
-        <a href="/dashboard" style="margin-left:10px; color:#666; font-size:0.9rem;">Clear Search</a>
-    </c:if>
-</form>
+
+<c:if test="${!hasCourseMaster}">
+    <div class="course-card" style="background-color: #e6f2ff; border-color: #b3d9ff; text-align: center; margin-top: 20px;">
+        <h2 style="color: #005A9E; margin-bottom: 10px;">🏆 Current Goal: Complete 3 Courses</h2>
+
+        <p style="font-size: 1.2rem; color: #333;">Progress: <strong>${completedCourseCount >= 3 ? 3 : completedCourseCount} / 3</strong></p>
+
+        <div style="width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 15px; overflow: hidden;">
+            <div style="width: ${completedCourseCount >= 3 ? 100 : (completedCourseCount / 3.0) * 100}%;
+                    height: 20px; background-color: #107C10; border-radius: 5px; transition: width 0.5s ease-in-out;"></div>
+        </div>
+
+        <c:if test="${completedCourseCount >= 3}">
+            <form action="<c:url value='/unlock-achievement' />" method="post" style="margin-top: 15px;">
+                <input type="hidden" name="achievementTitle" value="Course Master (3 Courses)">
+                <button type="submit" class="btn btn-green" style="font-size: 1.1rem; padding: 10px 20px;">Claim Level Up!</button>
+            </form>
+        </c:if>
+    </div>
+</c:if>
+
+<c:if test="${hasCourseMaster}">
+    <div class="course-card" style="background-color: #e8f5e9; border-color: #c8e6c9; text-align: center; margin-top: 20px;">
+        <h2 style="color: #2e7d32; margin-bottom: 0;">🎉 Goal Achieved: Course Master!</h2>
+        <p style="color: #666; margin-top: 5px;">Check your profile to see your rewards.</p>
+    </div>
+</c:if>
 
 <hr/>
 
