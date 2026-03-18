@@ -22,8 +22,7 @@ public class DataLoader implements CommandLineRunner {
                     "Learn AI basics",
                     "Beginner",
                     "10 hours",
-                    "https://ibm.com/ai",
-                    "AVAILABLE"
+                    "https://ibm.com/ai"
             ));
 
             courseRepository.save(new Course(
@@ -31,8 +30,7 @@ public class DataLoader implements CommandLineRunner {
                     "Learn Python for data analysis",
                     "Beginner",
                     "12 hours",
-                    "https://ibm.com/python",
-                    "AVAILABLE"
+                    "https://ibm.com/python"
             ));
 
             courseRepository.save(new Course(
@@ -40,8 +38,7 @@ public class DataLoader implements CommandLineRunner {
                     "Learn IBM’s design thinking approach",
                     "Beginner",
                     "8 hours",
-                    "https://ibm.com/design",
-                    "AVAILABLE"
+                    "https://ibm.com/design"
             ));
 
             courseRepository.save(new Course(
@@ -49,8 +46,7 @@ public class DataLoader implements CommandLineRunner {
                     "Understand core cybersecurity concepts",
                     "Beginner",
                     "9 hours",
-                    "https://ibm.com/security",
-                    "COMPLETED"
+                    "https://ibm.com/security"
             ));
 
             courseRepository.save(new Course(
@@ -58,8 +54,7 @@ public class DataLoader implements CommandLineRunner {
                     "Introduction to data analytics",
                     "Beginner",
                     "11 hours",
-                    "https://ibm.com/data",
-                    "AVAILABLE"
+                    "https://ibm.com/data"
             ));
 
             System.out.println("✅ Dummy courses successfully loaded into MySQL");
