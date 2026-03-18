@@ -134,6 +134,15 @@
             background-color: #ffebee;
             border-radius: 4px;
         }
+        .deleted-msg {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            font-weight: 500;
+        }
         
         .link-section {
             text-align: center;
@@ -151,6 +160,7 @@
         .link-section a:hover {
             text-decoration: underline;
         }
+
     </style>
 </head>
 <body>
@@ -171,6 +181,11 @@
         
         <c:if test="${param.error != null}">
             <p class="error-msg">Invalid email or password</p>
+        </c:if>
+        <c:if test="${param.deleted != null}">
+            <div class="deleted-msg">
+                Your account has been successfully deleted!
+            </div>
         </c:if>
 
         <form action="${pageContext.request.contextPath}/login" method="post">

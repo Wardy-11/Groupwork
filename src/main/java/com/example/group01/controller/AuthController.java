@@ -6,9 +6,12 @@ import com.example.group01.repository.CourseRepository;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.service.AchievementService;
 import com.example.group01.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -175,6 +179,34 @@ public class AuthController {
         model.addAttribute("success", "Profile updated successfully!");
 
         return "profile";
+    }
+
+    @PostMapping("/profile/delete")
+    public String deleteAccount(Authentication authentication,
+                                HttpServletRequest request,
+                                HttpServletResponse response,
+                                Model model) {
+        try {
+            userService.deleteUser();
+
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+            return "redirect:/login?deleted";
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+
+            if (authentication != null) {
+                String email = authentication.getName();
+                User user = userRepository.findByEmail(email);
+
+                if (user != null) {
+                    model.addAttribute("user", user);
+                    model.addAttribute("achievements", user.getAchievements());
+                }
+            }
+
+            return "profile";
+        }
     }
 
     @PostMapping("/unlock-achievement")
