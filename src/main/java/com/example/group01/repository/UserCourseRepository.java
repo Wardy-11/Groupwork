@@ -15,4 +15,6 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
     List<UserCourse> findByUserIdAndStatus(Long userId, String status);
 
     long countByUserIdAndStatus(Long userId, String status);
+
+    void deleteByUserId(long userId);
 }

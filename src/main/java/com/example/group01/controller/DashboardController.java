@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,24 +67,46 @@ public class DashboardController {
                         UserCourse::getStatus
                 ));
 
+        Comparator<Course> pathComparator = Comparator
+                .comparing((Course c) -> c.getPathName() == null ? "Other" : c.getPathName(), String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(c -> c.getPathOrder() == null ? Integer.MAX_VALUE : c.getPathOrder())
+                .thenComparing(Course::getTitle, String.CASE_INSENSITIVE_ORDER);
+
         List<Course> startedCourses = coursesDisplay.stream()
                 .filter(c -> "STARTED".equals(statusByCourseId.get(c.getId())))
+                .sorted(pathComparator)
                 .collect(Collectors.toList());
 
         List<Course> completedCourses = coursesDisplay.stream()
                 .filter(c -> "COMPLETED".equals(statusByCourseId.get(c.getId())))
+                .sorted(pathComparator)
                 .collect(Collectors.toList());
 
         List<Course> availableCourses = coursesDisplay.stream()
                 .filter(c -> !statusByCourseId.containsKey(c.getId()))
+                .sorted(pathComparator)
                 .collect(Collectors.toList());
 
         model.addAttribute("startedCourses", startedCourses);
         model.addAttribute("availableCourses", availableCourses);
         model.addAttribute("completedCourses", completedCourses);
+
+        model.addAttribute("startedCoursesByPath", groupCoursesByPath(startedCourses));
+        model.addAttribute("availableCoursesByPath", groupCoursesByPath(availableCourses));
+        model.addAttribute("completedCoursesByPath", groupCoursesByPath(completedCourses));
+
         model.addAttribute("completedCourseCount", completedCourses.size());
 
         return "dashboard";
+    }
+
+    private Map<String, List<Course>> groupCoursesByPath(List<Course> courses) {
+        return courses.stream()
+                .collect(Collectors.groupingBy(
+                        c -> (c.getPathName() == null || c.getPathName().isBlank()) ? "Other" : c.getPathName(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
     }
 
     @PostMapping("/complete-course")
