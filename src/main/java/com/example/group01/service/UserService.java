@@ -192,4 +192,24 @@ public class UserService {
         }
         return users;
     }
+
+    public void deleteUser() {
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("No authenticated user found");
+        }
+
+        String email = auth.getName();
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found for email: " + email);
+        }
+
+        userRepository.delete(user);
+
+    }
 }

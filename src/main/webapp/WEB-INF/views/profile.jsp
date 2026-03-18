@@ -71,8 +71,19 @@
             background-color: #fff;
             color: #005A9E;
         }
-    
+       .delete-account-btn {
+           background-color: #c62828;
+           color: white;
+           border: none;
+           padding: 10px 16px;
+           border-radius: 6px;
+           cursor: pointer;
+           margin-top: 16px;
+       }
 
+       .delete-account-btn:hover {
+           background-color: #a61d1d;
+       }
         
        
         .container { max-width: 50%; margin: 2rem auto 0 auto; background: white; padding: 20px 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -157,6 +168,10 @@
 
     <form action="<c:url value='/unlock-achievement' />" method="post">
         <button type="submit" class="btn" style="background-color: #107C10;">Unlock Achievement</button>
+    </form>
+    <form action="${pageContext.request.contextPath}/profile/delete" method="post"
+          onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+        <button type="submit" class="delete-account-btn">Delete Account</button>
     </form>
 </div>
 </body>

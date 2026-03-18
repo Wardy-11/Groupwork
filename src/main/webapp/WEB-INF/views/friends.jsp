@@ -140,7 +140,7 @@
                 </c:if>
             </form>
         </div>
-        <a href="<c:url value='/allUsers'/>" class="nav-link">Add Friends</a>
+        <a href="<c:url value='/allUsers'/>" class="nav-link">Discover People</a>
     </div>
 
     <table>
