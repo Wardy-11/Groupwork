@@ -2,7 +2,9 @@ package com.example.group01.controller;
 
 import com.example.group01.model.Course;
 import com.example.group01.model.User;
+import com.example.group01.model.UserCourse;
 import com.example.group01.repository.CourseRepository;
+import com.example.group01.repository.UserCourseRepository;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.service.AchievementService;
 import com.example.group01.service.TitleService;
@@ -34,6 +36,9 @@ public class AuthController {
     private CourseRepository courseRepository;
 
     @Autowired
+    private UserCourseRepository userCourseRepository;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -54,38 +59,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public String handleRegistration(
-            String firstName,
-            String lastName,
-            String email,
-            String password,
-            String confirmPassword,
-            String course,
+            String firstName, String lastName, String email,
+            String password, String confirmPassword, String course,
             Model model) {
 
-        if (firstName == null || firstName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "First name is required.");
-            return "register";
-        }
-        if (lastName == null || lastName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "Last name is required.");
-            return "register";
-        }
-        if (email == null || email.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "Email address is required.");
-            return "register";
-        }
-        if (!email.contains("@")) {
-            model.addAttribute(ERROR_ATTR, "Please provide a valid email address.");
-            return "register";
-        }
-        if (password == null || password.length() < 6) {
-            model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
-            return "register";
-        }
-        if (!password.equals(confirmPassword)) {
-            model.addAttribute(ERROR_ATTR, "Passwords do not match.");
-            return "register";
-        }
+        if (firstName == null || firstName.isBlank()) { model.addAttribute(ERROR_ATTR, "First name is required."); return "register"; }
+        if (lastName == null || lastName.isBlank()) { model.addAttribute(ERROR_ATTR, "Last name is required."); return "register"; }
+        if (email == null || email.isBlank()) { model.addAttribute(ERROR_ATTR, "Email address is required."); return "register"; }
+        if (!email.contains("@")) { model.addAttribute(ERROR_ATTR, "Please provide a valid email address."); return "register"; }
+        if (password == null || password.length() < 6) { model.addAttribute(ERROR_ATTR, "Password must be at least six characters."); return "register"; }
+        if (!password.equals(confirmPassword)) { model.addAttribute(ERROR_ATTR, "Passwords do not match."); return "register"; }
 
         try {
             userService.registerUser(firstName, lastName, email, password, course);
@@ -125,12 +108,13 @@ public class AuthController {
         achievementService.checkStreakAchievements(user, streak);
         user = userRepository.findByEmail(email);
 
+        List<Course> startedCourses = userCourseRepository.findByUserAndStatus(user, "STARTED")
+                .stream()
+                .map(UserCourse::getCourse)
+                .collect(Collectors.toList());
+
         model.addAttribute("user", user);
         model.addAttribute("streak", streak);
-
-        List<Course> startedCourses = courseRepository.findAll().stream()
-                .filter(c -> "STARTED".equals(c.getStatus()))
-                .collect(Collectors.toList());
         model.addAttribute("startedCourses", startedCourses);
 
         return "homepage";
@@ -140,12 +124,7 @@ public class AuthController {
     public String viewProfile(Model model, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-        model.addAttribute("user", user);
-        model.addAttribute("achievements", user.getAchievements());
-        model.addAttribute("allAchievements", AchievementService.ALL_ACHIEVEMENTS.values());
-        model.addAttribute("allTitles", TitleService.ALL_TITLES.values());
-        model.addAttribute("unlockedTitles", titleService.getUnlockedTitles(user));
-        model.addAttribute("equippedTitleDef", titleService.getEquippedTitleDefinition(user));
+        populateProfileModel(model, user);
         return "profile";
     }
 
@@ -162,32 +141,13 @@ public class AuthController {
         String currentEmail = authentication.getName();
         User user = userRepository.findByEmail(currentEmail);
 
-        if (firstName == null || firstName.isBlank()) {
-            model.addAttribute("error", "First name is required.");
-            populateProfileModel(model, user);
-            return "profile";
-        }
-        if (lastName == null || lastName.isBlank()) {
-            model.addAttribute("error", "Last name is required.");
-            populateProfileModel(model, user);
-            return "profile";
-        }
-        if (email == null || email.isBlank() || !email.contains("@")) {
-            model.addAttribute("error", "A valid email address is required.");
-            populateProfileModel(model, user);
-            return "profile";
-        }
-        if (!user.getEmail().equals(email) && userRepository.findByEmail(email) != null) {
-            model.addAttribute("error", "That email address is already in use.");
-            populateProfileModel(model, user);
-            return "profile";
-        }
+        if (firstName == null || firstName.isBlank()) { model.addAttribute("error", "First name is required."); populateProfileModel(model, user); return "profile"; }
+        if (lastName == null || lastName.isBlank()) { model.addAttribute("error", "Last name is required."); populateProfileModel(model, user); return "profile"; }
+        if (email == null || email.isBlank() || !email.contains("@")) { model.addAttribute("error", "A valid email address is required."); populateProfileModel(model, user); return "profile"; }
+        if (!user.getEmail().equals(email) && userRepository.findByEmail(email) != null) { model.addAttribute("error", "That email address is already in use."); populateProfileModel(model, user); return "profile"; }
+
         if (password != null && !password.isBlank()) {
-            if (password.length() < 6) {
-                model.addAttribute("error", "New password must be at least 6 characters.");
-                populateProfileModel(model, user);
-                return "profile";
-            }
+            if (password.length() < 6) { model.addAttribute("error", "New password must be at least 6 characters."); populateProfileModel(model, user); return "profile"; }
             user.setPassword(userService.encodePassword(password));
         }
 
@@ -203,9 +163,7 @@ public class AuthController {
     }
 
     @PostMapping("/profile/equip-title")
-    public String equipTitle(
-            @RequestParam("titleName") String titleName,
-            Authentication authentication) {
+    public String equipTitle(@RequestParam("titleName") String titleName, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
         titleService.equipTitle(user, titleName);
@@ -213,10 +171,7 @@ public class AuthController {
     }
 
     @PostMapping("/profile/delete")
-    public String deleteAccount(Authentication authentication,
-                                HttpServletRequest request,
-                                HttpServletResponse response,
-                                Model model) {
+    public String deleteAccount(Authentication authentication, HttpServletRequest request, HttpServletResponse response, Model model) {
         try {
             userService.deleteUser();
             new SecurityContextLogoutHandler().logout(request, response, authentication);
@@ -224,11 +179,8 @@ public class AuthController {
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             if (authentication != null) {
-                String email = authentication.getName();
-                User user = userRepository.findByEmail(email);
-                if (user != null) {
-                    populateProfileModel(model, user);
-                }
+                User user = userRepository.findByEmail(authentication.getName());
+                if (user != null) populateProfileModel(model, user);
             }
             return "profile";
         }
@@ -249,9 +201,7 @@ public class AuthController {
         if (currentUser.getFriends() != null && !currentUser.getFriends().isEmpty()) {
             for (String friendUsername : currentUser.getFriends()) {
                 User friendUser = userRepository.findByUsername(friendUsername);
-                if (friendUser != null) {
-                    friendsUsers.add(friendUser);
-                }
+                if (friendUser != null) friendsUsers.add(friendUser);
             }
         }
 
@@ -283,9 +233,7 @@ public class AuthController {
         if (friendsDisplay != null) {
             for (String username : friendsDisplay) {
                 User friendUser = userRepository.findByUsername(username);
-                if (friendUser != null) {
-                    titleMap.put(username, titleService.getEquippedTitleDefinition(friendUser));
-                }
+                if (friendUser != null) titleMap.put(username, titleService.getEquippedTitleDefinition(friendUser));
             }
         }
 
@@ -309,17 +257,13 @@ public class AuthController {
         }
 
         for (User account : usersDisplay) {
-            if (account.getUsername() != user.getUsername()) {
-                usernameDisplay.add(account.getUsername());
-            }
+            if (account.getUsername() != user.getUsername()) usernameDisplay.add(account.getUsername());
         }
 
         Map<String, TitleDefinition> titleMap = new HashMap<>();
         for (String username : usernameDisplay) {
             User u = userRepository.findByUsername(username);
-            if (u != null) {
-                titleMap.put(username, titleService.getEquippedTitleDefinition(u));
-            }
+            if (u != null) titleMap.put(username, titleService.getEquippedTitleDefinition(u));
         }
 
         model.addAttribute("friends", usernameDisplay);
@@ -332,9 +276,7 @@ public class AuthController {
     public String removeFriend(Authentication authentication, @RequestParam("username") String username, @RequestParam("source") String source) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-        List<String> friends = user.getFriends();
-        List<String> newFriendList = userService.removeFriend(friends, username);
-        user.setFriends(newFriendList);
+        user.setFriends(userService.removeFriend(user.getFriends(), username));
         userRepository.save(user);
         return "redirect:/" + source;
     }
@@ -343,9 +285,7 @@ public class AuthController {
     public String addFriend(Authentication authentication, @RequestParam("username") String username, @RequestParam("source") String source) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-        List<String> friends = user.getFriends();
-        friends.add(username);
-        user.setFriends(friends);
+        user.getFriends().add(username);
         userRepository.save(user);
         return "redirect:/" + source;
     }

@@ -181,7 +181,7 @@
     <c:forEach items="${startedCourses}" var="course">
         <div class="course-card">
             <h3>${course.title}</h3>
-            <p>Status: <span style="color: #107C10; font-weight: bold;">${course.status}</span></p>
+            <p>Status: <span style="color: #107C10; font-weight: bold;">In Progress</span></p>
             <div class="button-group">
                 <a href="${course.url}" target="_blank" class="btn btn-blue">Resume Course</a>
                 <form action="/complete-course" method="post" style="margin: 0;">
