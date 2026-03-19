@@ -5,6 +5,8 @@ import com.example.group01.model.User;
 import com.example.group01.repository.CourseRepository;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.service.AchievementService;
+import com.example.group01.service.TitleService;
+import com.example.group01.service.TitleService.TitleDefinition;
 import com.example.group01.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,15 +18,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -42,6 +42,9 @@ public class AuthController {
     @Autowired
     private AchievementService achievementService;
 
+    @Autowired
+    private TitleService titleService;
+
     private static final String ERROR_ATTR = "error";
 
     @GetMapping("/register")
@@ -57,33 +60,28 @@ public class AuthController {
             String password,
             String confirmPassword,
             String course,
-            Model model
-    ) {
+            Model model) {
+
         if (firstName == null || firstName.isBlank()) {
             model.addAttribute(ERROR_ATTR, "First name is required.");
             return "register";
         }
-
         if (lastName == null || lastName.isBlank()) {
             model.addAttribute(ERROR_ATTR, "Last name is required.");
             return "register";
         }
-
         if (email == null || email.isBlank()) {
             model.addAttribute(ERROR_ATTR, "Email address is required.");
             return "register";
         }
-
         if (!email.contains("@")) {
             model.addAttribute(ERROR_ATTR, "Please provide a valid email address.");
             return "register";
         }
-
         if (password == null || password.length() < 6) {
             model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
             return "register";
         }
-
         if (!password.equals(confirmPassword)) {
             model.addAttribute(ERROR_ATTR, "Passwords do not match.");
             return "register";
@@ -120,7 +118,15 @@ public class AuthController {
     public String home(Model model, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
+
+        int streak = userService.updateLoginStreak(email);
+        achievementService.unlockAchievement(user, "First Login");
+        user = userRepository.findByEmail(email);
+        achievementService.checkStreakAchievements(user, streak);
+        user = userRepository.findByEmail(email);
+
         model.addAttribute("user", user);
+        model.addAttribute("streak", streak);
 
         List<Course> startedCourses = courseRepository.findAll().stream()
                 .filter(c -> "STARTED".equals(c.getStatus()))
@@ -136,49 +142,74 @@ public class AuthController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
         model.addAttribute("achievements", user.getAchievements());
-
+        model.addAttribute("allAchievements", AchievementService.ALL_ACHIEVEMENTS.values());
+        model.addAttribute("allTitles", TitleService.ALL_TITLES.values());
+        model.addAttribute("unlockedTitles", titleService.getUnlockedTitles(user));
+        model.addAttribute("equippedTitleDef", titleService.getEquippedTitleDefinition(user));
         return "profile";
     }
 
     @PostMapping("/profile")
     public String updateProfile(
-            @Valid @ModelAttribute("user") User formUser,
-            BindingResult bindingResult,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("email") String email,
+            @RequestParam(value = "course", required = false) String course,
+            @RequestParam(value = "password", required = false) String password,
             Authentication authentication,
             Model model) {
 
         String currentEmail = authentication.getName();
         User user = userRepository.findByEmail(currentEmail);
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("achievements", user.getAchievements());
-            model.addAttribute("error", bindingResult.getFieldError().getDefaultMessage());
+        if (firstName == null || firstName.isBlank()) {
+            model.addAttribute("error", "First name is required.");
+            populateProfileModel(model, user);
             return "profile";
         }
-
-        if (!user.getEmail().equals(formUser.getEmail())
-                && userRepository.findByEmail(formUser.getEmail()) != null) {
-            model.addAttribute("error", "Email already in use.");
-            model.addAttribute("achievements", user.getAchievements());
+        if (lastName == null || lastName.isBlank()) {
+            model.addAttribute("error", "Last name is required.");
+            populateProfileModel(model, user);
             return "profile";
         }
-
-        user.setFirstName(formUser.getFirstName());
-        user.setLastName(formUser.getLastName());
-        user.setEmail(formUser.getEmail());
-        user.setCourse(formUser.getCourse());
-
-        if (formUser.getPassword() != null && !formUser.getPassword().isBlank()) {
-            user.setPassword(userService.encodePassword(formUser.getPassword()));
+        if (email == null || email.isBlank() || !email.contains("@")) {
+            model.addAttribute("error", "A valid email address is required.");
+            populateProfileModel(model, user);
+            return "profile";
+        }
+        if (!user.getEmail().equals(email) && userRepository.findByEmail(email) != null) {
+            model.addAttribute("error", "That email address is already in use.");
+            populateProfileModel(model, user);
+            return "profile";
+        }
+        if (password != null && !password.isBlank()) {
+            if (password.length() < 6) {
+                model.addAttribute("error", "New password must be at least 6 characters.");
+                populateProfileModel(model, user);
+                return "profile";
+            }
+            user.setPassword(userService.encodePassword(password));
         }
 
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setCourse(course);
         userRepository.save(user);
 
-        model.addAttribute("user", user);
-        model.addAttribute("achievements", user.getAchievements());
         model.addAttribute("success", "Profile updated successfully!");
-
+        populateProfileModel(model, user);
         return "profile";
+    }
+
+    @PostMapping("/profile/equip-title")
+    public String equipTitle(
+            @RequestParam("titleName") String titleName,
+            Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        titleService.equipTitle(user, titleName);
+        return "redirect:/profile";
     }
 
     @PostMapping("/profile/delete")
@@ -188,54 +219,27 @@ public class AuthController {
                                 Model model) {
         try {
             userService.deleteUser();
-
             new SecurityContextLogoutHandler().logout(request, response, authentication);
-
             return "redirect:/login?deleted";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
-
             if (authentication != null) {
                 String email = authentication.getName();
                 User user = userRepository.findByEmail(email);
-
                 if (user != null) {
-                    model.addAttribute("user", user);
-                    model.addAttribute("achievements", user.getAchievements());
+                    populateProfileModel(model, user);
                 }
             }
-
             return "profile";
         }
     }
 
-    @PostMapping("/unlock-achievement")
-    public String unlockAchievement(
-            @RequestParam(value = "achievementTitle", defaultValue = "First Login") String title,
-            Authentication authentication) {
-
-        String email = authentication.getName(); //
-        User user = userRepository.findByEmail(email); //
-
-        // 1. Try to unlock the specific achievement passed from the JSP
-        boolean isNewAchievement = achievementService.unlockAchievement(user, title);
-
-        // 2. ONLY award XP if they didn't already have it
-        if (isNewAchievement) {
-            userService.awardAchievementXp();
-        }
-
-        return "redirect:/profile";
-    }
-
-   @GetMapping("/leaderboard")
+    @GetMapping("/leaderboard")
     public String showLeaderboard(Model model, Authentication authentication) {
-        // Global leaderboard
         List<User> users = userRepository.findAll();
         users.sort(Comparator.comparingLong(User::getXp).reversed());
         model.addAttribute("users", users);
 
-        // Friends leaderboard (includes the current user)
         String email = authentication.getName();
         User currentUser = userRepository.findByEmail(email);
 
@@ -254,60 +258,73 @@ public class AuthController {
         friendsUsers.sort(Comparator.comparingLong(User::getXp).reversed());
         model.addAttribute("friendsUsers", friendsUsers);
 
+        Map<String, TitleDefinition> titleMap = new HashMap<>();
+        for (User u : users) {
+            titleMap.put(u.getUsername(), titleService.getEquippedTitleDefinition(u));
+        }
+        model.addAttribute("titleMap", titleMap);
+
         return "leaderboard";
     }
 
-    public void validate(Model model, String firstName, String lastName, String password) {
-        if (firstName == null || firstName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "First name is required.");
-        }
-
-        if (lastName == null || lastName.isBlank()) {
-            model.addAttribute(ERROR_ATTR, "Last name is required.");
-        }
-
-        if (password == null || password.length() < 6) {
-            model.addAttribute(ERROR_ATTR, "Password must be at least six characters.");
-        }
-    }
-
     @GetMapping("/friends")
-    public String showFriends(Model model,Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
-        List<String> friendsDisplay;
+    public String showFriends(Model model, Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
 
+        List<String> friendsDisplay;
         if (keyword != null && !keyword.isEmpty()) {
             friendsDisplay = userRepository.findFriendsByUsername(user.getId(), keyword);
         } else {
-
             friendsDisplay = user.getFriends();
+        }
+
+        Map<String, TitleDefinition> titleMap = new HashMap<>();
+        if (friendsDisplay != null) {
+            for (String username : friendsDisplay) {
+                User friendUser = userRepository.findByUsername(username);
+                if (friendUser != null) {
+                    titleMap.put(username, titleService.getEquippedTitleDefinition(friendUser));
+                }
+            }
         }
 
         model.addAttribute("friends", friendsDisplay);
         model.addAttribute("currentUser", user);
+        model.addAttribute("titleMap", titleMap);
         return "friends";
     }
 
     @GetMapping("/allUsers")
     public String showAllUsers(Model model, Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
         List<User> usersDisplay;
-        List<String> usernameDisplay =  new ArrayList<>();
+        List<String> usernameDisplay = new ArrayList<>();
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
-        if(keyword != null && !keyword.isEmpty()) {
+
+        if (keyword != null && !keyword.isEmpty()) {
             usersDisplay = userRepository.findAllByUsernameContainingIgnoreCase(keyword);
-        }
-        else {
+        } else {
             usersDisplay = userRepository.findAll();
         }
-        for(User account : usersDisplay) {
-            if(account.getUsername() != user.getUsername()){
+
+        for (User account : usersDisplay) {
+            if (account.getUsername() != user.getUsername()) {
                 usernameDisplay.add(account.getUsername());
             }
         }
+
+        Map<String, TitleDefinition> titleMap = new HashMap<>();
+        for (String username : usernameDisplay) {
+            User u = userRepository.findByUsername(username);
+            if (u != null) {
+                titleMap.put(username, titleService.getEquippedTitleDefinition(u));
+            }
+        }
+
         model.addAttribute("friends", usernameDisplay);
         model.addAttribute("currentUser", user);
+        model.addAttribute("titleMap", titleMap);
         return "allUsers";
     }
 
@@ -318,8 +335,8 @@ public class AuthController {
         List<String> friends = user.getFriends();
         List<String> newFriendList = userService.removeFriend(friends, username);
         user.setFriends(newFriendList);
-        user = userRepository.save(user);
-        return "redirect:/"+source;
+        userRepository.save(user);
+        return "redirect:/" + source;
     }
 
     @GetMapping("/addFriend")
@@ -329,10 +346,16 @@ public class AuthController {
         List<String> friends = user.getFriends();
         friends.add(username);
         user.setFriends(friends);
-        user = userRepository.save(user);
+        userRepository.save(user);
         return "redirect:/" + source;
     }
 
-
+    private void populateProfileModel(Model model, User user) {
+        model.addAttribute("user", user);
+        model.addAttribute("achievements", user.getAchievements());
+        model.addAttribute("allAchievements", AchievementService.ALL_ACHIEVEMENTS.values());
+        model.addAttribute("allTitles", TitleService.ALL_TITLES.values());
+        model.addAttribute("unlockedTitles", titleService.getUnlockedTitles(user));
+        model.addAttribute("equippedTitleDef", titleService.getEquippedTitleDefinition(user));
+    }
 }
-

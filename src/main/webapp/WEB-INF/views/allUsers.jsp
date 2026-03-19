@@ -1,25 +1,27 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Title</title>
+    <meta charset="UTF-8">
+    <title>Discover People</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         header {
             background-color: #005A9E;
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 100%;
         }
-        
+
         .brand {
             font-size: 1.5rem;
             font-weight: 700;
@@ -28,21 +30,21 @@
             display: flex;
             align-items: center;
         }
-        
+
         .nav-divider {
             width: 2px;
             height: 24px;
             background-color: rgba(255, 255, 255, 0.3);
             margin: 0 1.5rem;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
             align-items: center;
             flex: 1;
         }
-        
+
         .nav-links a {
             color: #fff;
             text-decoration: none;
@@ -50,12 +52,9 @@
             transition: color 0.2s, opacity 0.2s;
             padding: 0.5rem 0;
         }
-        
-        .nav-links a:hover {
-            color: #e0e0e0;
-            opacity: 0.9;
-        }
-        
+
+        .nav-links a:hover { color: #e0e0e0; opacity: 0.9; }
+
         .logout-link {
             color: #fff;
             text-decoration: none;
@@ -65,12 +64,9 @@
             border-radius: 4px;
             transition: background-color 0.2s, color 0.2s;
         }
-        
-        .logout-link:hover {
-            background-color: #fff;
-            color: #005A9E;
-        }
-        
+
+        .logout-link:hover { background-color: #fff; color: #005A9E; }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; }
         h1 { color: #333; margin: 0; }
 
@@ -97,7 +93,7 @@
 
         .search-box { padding: 8px 12px; width: 250px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
 
-        .btn { padding: 8px 15px; border-radius: 4px; color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 600;}
+        .btn { padding: 8px 15px; border-radius: 4px; color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 600; }
         .btn-blue { background-color: #005A9E; }
         .btn-blue:hover { background-color: #004a87; }
         .btn-green { background-color: #107C10; }
@@ -106,11 +102,22 @@
         .btn-red:hover { background-color: #c9302c; }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
+        td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
         td:first-child { width: 80%; }
         td:last-child { width: 20%; text-align: right; }
         tr:hover { background-color: #f9f9f9; }
         form { margin: 0; }
+
+        .title-badge {
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -136,7 +143,7 @@
                 <input type="text" name="keyword" class="search-box" placeholder="Enter Username" value="${param.keyword}" />
                 <button type="submit" class="btn btn-blue">Search</button>
                 <c:if test="${not empty param.keyword}">
-                    <a href="/friends" style="color:#666; font-size:0.9rem;">Clear Search</a>
+                    <a href="/allUsers" style="color:#666; font-size:0.9rem;">Clear Search</a>
                 </c:if>
             </form>
         </div>
@@ -146,7 +153,13 @@
     <table>
         <c:forEach var="friend" items="${friends}">
             <tr>
-                <td>${friend}</td>
+                <td>
+                        ${friend}
+                    <c:set var="titleDef" value="${titleMap[friend]}" />
+                    <c:if test="${not empty titleDef}">
+                        <span class="title-badge" style="background-color: ${titleDef.colour};">${titleDef.name}</span>
+                    </c:if>
+                </td>
                 <td>
                     <c:choose>
                         <c:when test="${currentUser.friends.contains(friend)}">
