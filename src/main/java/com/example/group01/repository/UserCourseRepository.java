@@ -9,8 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
-    List<UserCourse> findByUser(User user);
-    Optional<UserCourse> findByUserAndCourse(User user, Course course);
-    List<UserCourse> findByUserAndStatus(User user, String status);
-    long countByUserAndStatus(User user, String status);
+
+    Optional<UserCourse> findByUserIdAndCourseId(Long userId, Long courseId);
+
+    List<UserCourse> findByUserId(Long userId);
+
+    List<UserCourse> findByUserIdAndStatus(Long userId, String status);
+
+    long countByUserIdAndStatus(Long userId, String status);
+
+    void deleteByUserId(long userId);
 }

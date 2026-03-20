@@ -11,11 +11,11 @@ public class UserCourse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
@@ -30,14 +30,12 @@ public class UserCourse {
         this.status = status;
     }
 
-    public Long getId() { return id; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-
-    public Course getCourse() { return course; }
-    public void setCourse(Course course) { this.course = course; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public Long getId() {return id;}
+    public User getUser() {return user;}
+    public Course getCourse() {return course;}
+    public String getStatus() {return status;}
+    public void setId(Long id) {this.id = id;}
+    public void setUser(User user) {this.user = user;}
+    public void setCourse(Course course) {this.course = course;}
+    public void setStatus(String status) {this.status = status;}
 }

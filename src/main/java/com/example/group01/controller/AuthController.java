@@ -34,18 +34,17 @@ public class AuthController {
 
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private UserCourseRepository userCourseRepository;
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private AchievementService achievementService;
+    @Autowired
+    private UserCourseRepository userCourseRepository;
 
     @Autowired
     private TitleService titleService;

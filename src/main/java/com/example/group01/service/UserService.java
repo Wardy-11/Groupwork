@@ -1,7 +1,9 @@
 package com.example.group01.service;
 
 import com.example.group01.model.User;
+import com.example.group01.repository.UserCourseRepository;
 import com.example.group01.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserCourseRepository userCourseRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       UserCourseRepository userCourseRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userCourseRepository = userCourseRepository;
     }
 
     public User loginUser(String email, String password) {
@@ -153,14 +159,17 @@ public class UserService {
         return users;
     }
 
+    @Transactional
     public void deleteUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new RuntimeException("No authenticated user found");
-        }
-        String email = auth.getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
         User user = userRepository.findByEmail(email);
-        if (user == null) throw new RuntimeException("User not found for email: " + email);
+        if (user == null) {
+            throw new RuntimeException("User not found.");
+        }
+
+        userCourseRepository.deleteByUserId(user.getId());
         userRepository.delete(user);
     }
 }

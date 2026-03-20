@@ -192,38 +192,104 @@
         </div>
     </c:forEach>
 
-    <h2>Available Courses</h2>
-    <c:if test="${empty availableCourses}">
-        <p>No available courses found.</p>
-    </c:if>
-    <c:forEach items="${availableCourses}" var="course">
-        <div class="course-card">
-            <h3>${course.title}</h3>
-            <p>Explore this IBM SkillsBuild course.</p>
-            <div class="button-group">
-                <a href="${course.url}" target="_blank" class="btn btn-blue">View Details</a>
-                <form action="/start-course" method="post" style="margin: 0;">
-                    <input type="hidden" name="courseId" value="${course.id}">
-                    <button type="submit" class="btn btn-green">Start Course</button>
-                </form>
-            </div>
-        </div>
-    </c:forEach>
+        <c:if test="${completedCourseCount >= 3}">
+            <form action="<c:url value='/unlock-achievement' />" method="post" style="margin-top: 15px;">
+                <input type="hidden" name="achievementTitle" value="Course Master (3 Courses)">
+                <button type="submit" class="btn btn-green" style="font-size: 1.1rem; padding: 10px 20px;">Claim Level Up!</button>
+            </form>
+        </c:if>
+    </div>
+</c:if>
 
-    <hr/>
+<c:if test="${hasCourseMaster}">
+    <div class="course-card" style="background-color: #e8f5e9; border-color: #c8e6c9; text-align: center; margin-top: 20px;">
+        <h2 style="color: #2e7d32; margin-bottom: 0;">🎉 Goal Achieved: Course Master!</h2>
+        <p style="color: #666; margin-top: 5px;">Check your profile to see your rewards.</p>
+    </div>
+</c:if>
 
-    <h2 style="color: #666;">Completed Courses</h2>
-    <c:if test="${empty completedCourses}">
-        <p>You haven't completed any courses yet. Keep going!</p>
-    </c:if>
-    <c:forEach items="${completedCourses}" var="course">
-        <div class="course-card" style="background-color: #f9f9f9; border-color: #eee;">
-            <h3 style="color: #888;">${course.title} (Completed &#10003;)</h3>
-            <div class="button-group">
-                <a href="${course.url}" target="_blank" class="btn btn-blue" style="background-color: #666;">Review Material</a>
+<hr/>
+
+<h2>Started Courses</h2>
+<c:if test="${empty startedCoursesByPath}">
+    <p>No courses currently in progress.</p>
+</c:if>
+<c:forEach var="pathEntry" items="${startedCoursesByPath}" varStatus="status">
+    <div class="path-header"
+         onclick="togglePath('started-${status.index}')">
+            ${pathEntry.key} ▼
+    </div>
+    <div id="started-${status.index}" class="path-content">
+        <c:forEach var="course" items="${pathEntry.value}">
+            <div class="course-card">
+                <h3>${course.title}</h3>
+                <p>${course.description}</p>
+                <p>Status: STARTED</p>
+                <div class="button-group">
+                    <a href="${course.url}" target="_blank" class="btn btn-blue">Resume Course</a>
+                    <form action="${pageContext.request.contextPath}/complete-course" method="post" style="margin: 0;">
+                        <input type="hidden" name="courseId" value="${course.id}">
+                        <button type="submit" class="btn btn-green">Mark as Complete</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </c:forEach>
-</main>
+        </c:forEach>
+    </div>
+</c:forEach>
+
+<hr/>
+
+<h2>Available Courses</h2>
+<c:if test="${empty availableCoursesByPath}">
+    <p>No available courses found.</p>
+</c:if>
+<c:forEach var="pathEntry" items="${availableCoursesByPath}" varStatus="status">
+    <div class="path-header"
+         onclick="togglePath('available-${status.index}')">
+            ${pathEntry.key} ▼
+    </div>
+    <div id="available-${status.index}" class="path-content">
+        <c:forEach var="course" items="${pathEntry.value}">
+            <div class="course-card">
+                <h3>${course.title}</h3>
+                <p>${course.description}</p>
+                <p>Level: ${course.level}</p>
+                <p>Duration: ${course.duration}</p>
+                <p>Status: AVAILABLE</p>
+                <div class="button-group">
+                    <a href="${course.url}" target="_blank" class="btn btn-blue">View Details</a>
+                    <form action="${pageContext.request.contextPath}/start-course" method="post" style="margin: 0;">
+                        <input type="hidden" name="courseId" value="${course.id}">
+                        <button type="submit" class="btn btn-green">Start Course</button>
+                    </form>
+                </div>
+            </div>
+        </c:forEach>
+    </div>
+</c:forEach>
+
+<hr/>
+
+<h2 style="color: #666;">Completed Courses</h2>
+<c:if test="${empty completedCoursesByPath}">
+    <p>You haven't completed any courses yet. Keep going!</p>
+</c:if>
+<c:forEach var="pathEntry" items="${completedCoursesByPath}" varStatus="status">
+    <div class="path-header"
+         onclick="togglePath('completed-${status.index}')">
+            ${pathEntry.key} ▼
+    </div>
+    <div id="completed-${status.index}" class="path-content">
+        <c:forEach var="course" items="${pathEntry.value}">
+            <div class="course-card" style="background-color: #f9f9f9; border-color: #eee;">
+                <h3 style="color: #888;">${course.title} (Completed ✅)</h3>
+                <div class="button-group">
+                    <a href="${course.url}" target="_blank" class="btn btn-blue" style="background-color: #666;">Review Material</a>
+                </div>
+            </div>
+        </c:forEach>
+    </div>
+</c:forEach>
+
 </body>
 </html>
