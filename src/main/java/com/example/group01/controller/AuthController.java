@@ -36,15 +36,13 @@ public class AuthController {
     private CourseRepository courseRepository;
     @Autowired
     private UserCourseRepository userCourseRepository;
-
     @Autowired
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private AchievementService achievementService;
-    @Autowired
-    private UserCourseRepository userCourseRepository;
+
 
     @Autowired
     private TitleService titleService;
@@ -102,12 +100,12 @@ public class AuthController {
         User user = userRepository.findByEmail(email);
 
         int streak = userService.updateLoginStreak(email);
+        achievementService.checkStreakAchievements(user, streak);
         achievementService.unlockAchievement(user, "First Login");
         user = userRepository.findByEmail(email);
-        achievementService.checkStreakAchievements(user, streak);
-        user = userRepository.findByEmail(email);
+        Long userId = user.getId();
 
-        List<Course> startedCourses = userCourseRepository.findByUserAndStatus(user, "STARTED")
+        List<Course> startedCourses = userCourseRepository.findByUserIdAndStatus(userId, "STARTED")
                 .stream()
                 .map(UserCourse::getCourse)
                 .collect(Collectors.toList());

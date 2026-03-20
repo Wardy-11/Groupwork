@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 
 <!DOCTYPE html>
@@ -56,7 +56,10 @@
             padding: 0.5rem 0;
         }
 
-        .nav-links a:hover { color: #e0e0e0; opacity: 0.9; }
+        .nav-links a:hover {
+            color: #e0e0e0;
+            opacity: 0.9;
+        }
 
         .logout-link {
             color: #fff;
@@ -68,7 +71,10 @@
             transition: background-color 0.2s, color 0.2s;
         }
 
-        .logout-link:hover { background-color: #fff; color: #005A9E; }
+        .logout-link:hover {
+            background-color: #fff;
+            color: #005A9E;
+        }
 
         main { padding: 2rem; }
         h1 { color: #333; }
@@ -84,6 +90,8 @@
 
         .button-group { display: flex; gap: 10px; align-items: center; margin-top: 15px; }
 
+        .search-box { padding: 10px; width: 300px; border: 1px solid #ccc; border-radius: 4px; }
+
         .btn { padding: 8px 15px; text-decoration: none; border-radius: 4px; color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 600; }
         .btn-blue { background-color: #005A9E; }
         .btn-blue:hover { background-color: #004a87; }
@@ -91,40 +99,27 @@
         .btn-green:hover { background-color: #0d660d; }
 
         hr { border: 0; border-top: 1px solid #eee; margin: 40px 0; }
-
-        .progress-card {
-            background-color: #e6f2ff;
-            border: 1px solid #b3d9ff;
-            text-align: center;
-            margin-top: 20px;
+        .path-header {
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 12px;
+            padding: 10px;
+            background-color: #e9eef5;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
         }
 
-        .progress-bar-track {
-            width: 100%;
-            background-color: #ddd;
-            border-radius: 5px;
-            margin-top: 15px;
+        .path-content {
+            max-height: 0;
             overflow: hidden;
+            opacity: 0;
+            margin-top: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
         }
 
-        .progress-bar-fill {
-            height: 20px;
-            background-color: #107C10;
-            border-radius: 5px;
-            transition: width 0.5s ease-in-out;
-        }
-
-        .achieved-card {
-            background-color: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            text-align: center;
-            margin-top: 20px;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+        .path-content.active {
+            max-height: 2000px;
+            opacity: 1;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -144,53 +139,25 @@
     </div>
 </header>
 
-<main>
-    <h1>Track your SkillsBuild Progress</h1>
+<script>
+    function togglePath(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle("active");
+    }
+</script>
 
-    <c:choose>
-        <c:when test="${hasCourseMaster}">
-            <div class="achieved-card">
-                <h2 style="color: #2e7d32; margin-bottom: 0;">&#127942; Goal Achieved: Course Master!</h2>
-                <p style="color: #666; margin-top: 5px;">Check your profile to see your rewards.</p>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <div class="progress-card">
-                <h2 style="color: #005A9E; margin-bottom: 10px;">&#127942; Current Goal: Complete 3 Courses</h2>
-                <p style="font-size: 1.2rem; color: #333;">
-                    Progress: <strong>${completedCourseCount >= 3 ? 3 : completedCourseCount} / 3</strong>
-                </p>
-                <div class="progress-bar-track">
-                    <div class="progress-bar-fill" style="width: ${completedCourseCount >= 3 ? 100 : (completedCourseCount / 3.0) * 100}%;"></div>
-                </div>
-                <c:if test="${completedCourseCount >= 3}">
-                    <p style="margin-top: 12px; color: #107C10; font-weight: 600;">
-                        &#10003; Achievement will be awarded automatically when you mark your next course complete.
-                    </p>
-                </c:if>
-            </div>
-        </c:otherwise>
-    </c:choose>
+<h1>Track your SkillsBuild Progress</h1>
 
-    <hr/>
+<c:if test="${!hasCourseMaster}">
+    <div class="course-card" style="background-color: #e6f2ff; border-color: #b3d9ff; text-align: center; margin-top: 20px;">
+        <h2 style="color: #005A9E; margin-bottom: 10px;">🏆 Current Goal: Complete 3 Courses</h2>
 
-    <h2>Started Courses</h2>
-    <c:if test="${empty startedCourses}">
-        <p>No courses currently in progress.</p>
-    </c:if>
-    <c:forEach items="${startedCourses}" var="course">
-        <div class="course-card">
-            <h3>${course.title}</h3>
-            <p>Status: <span style="color: #107C10; font-weight: bold;">In Progress</span></p>
-            <div class="button-group">
-                <a href="${course.url}" target="_blank" class="btn btn-blue">Resume Course</a>
-                <form action="/complete-course" method="post" style="margin: 0;">
-                    <input type="hidden" name="courseId" value="${course.id}">
-                    <button type="submit" class="btn btn-green">Mark as Complete</button>
-                </form>
-            </div>
+        <p style="font-size: 1.2rem; color: #333;">Progress: <strong>${completedCourseCount >= 3 ? 3 : completedCourseCount} / 3</strong></p>
+
+        <div style="width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 15px; overflow: hidden;">
+            <div style="width: ${completedCourseCount >= 3 ? 100 : (completedCourseCount / 3.0) * 100}%;
+                    height: 20px; background-color: #107C10; border-radius: 5px; transition: width 0.5s ease-in-out;"></div>
         </div>
-    </c:forEach>
 
         <c:if test="${completedCourseCount >= 3}">
             <form action="<c:url value='/unlock-achievement' />" method="post" style="margin-top: 15px;">
