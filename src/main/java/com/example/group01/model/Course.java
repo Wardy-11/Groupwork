@@ -15,17 +15,20 @@ public class Course {
     private String level;
     private String duration;
     private String url;
-    private String status;
+
+    private String pathName;
+    private Integer pathOrder;
 
     public Course() {}
 
-    public Course(String title, String description, String level, String duration, String url, String status) {
+    public Course(String title, String description, String level, String duration, String url,  String pathName, Integer pathOrder) {
         this.title = title;
         this.description = description;
         this.level = level;
         this.duration = duration;
         this.url = url;
-        this.status = status;
+        this.pathName = pathName;
+        this.pathOrder = pathOrder;
     }
 
     public Long getId() { return id; }
@@ -34,7 +37,6 @@ public class Course {
     public String getLevel() { return level; }
     public String getDuration() { return duration; }
     public String getUrl() { return url; }
-    public String getStatus() { return status; }
-
-    public void setStatus(String status) { this.status = status; }
+    public String getPathName() { return pathName; }
+    public Integer getPathOrder() { return pathOrder; }
 }

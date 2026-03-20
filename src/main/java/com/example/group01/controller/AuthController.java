@@ -2,6 +2,8 @@ package com.example.group01.controller;
 
 import com.example.group01.model.Course;
 import com.example.group01.model.User;
+import com.example.group01.model.UserCourse;
+import com.example.group01.repository.UserCourseRepository;
 import com.example.group01.repository.CourseRepository;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.service.AchievementService;
@@ -32,15 +34,14 @@ public class AuthController {
 
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private AchievementService achievementService;
+    @Autowired
+    private UserCourseRepository userCourseRepository;
 
     private static final String ERROR_ATTR = "error";
 
@@ -122,9 +123,11 @@ public class AuthController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
 
-        List<Course> startedCourses = courseRepository.findAll().stream()
-                .filter(c -> "STARTED".equals(c.getStatus()))
+        List<Course> startedCourses = userCourseRepository.findByUserId(user.getId()).stream()
+                .filter(uc -> "STARTED".equals(uc.getStatus()))
+                .map(UserCourse::getCourse)
                 .collect(Collectors.toList());
+
         model.addAttribute("startedCourses", startedCourses);
 
         return "homepage";

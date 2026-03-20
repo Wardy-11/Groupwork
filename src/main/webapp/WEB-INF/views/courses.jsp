@@ -120,7 +120,6 @@
 </div>
 <script>
     const list = document.getElementById("courseList");
-    const loading = document.getElementById("loading");
 
     function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({
         "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
@@ -128,50 +127,28 @@
 
     function renderCourses(courses){
         list.innerHTML = ``;
-        courses.forEach(c => {
-            const card = document.createElement("div");
-            card.className = "course-card";
-            if(c.status !== "COMPLETED" && c.status !== "STARTED"){
-                card.innerHTML = `<div class="card">
-                <h3>${esc(c.title)}</h3>
-                <p>Status: ${esc(c.status)}</p>
-                <div class="meta">
-                <span><b>Course ID:</b> ${esc(c.id)}</span>
-                </div>
-                <div style="margin-top:10px;">
-                <a href="${esc(c.url)}">
-                    <button href="${esc(c.url)}">Start Course</button>
-                </a>
-                </div>
-                </div>`;
-                list.appendChild(card);
-            }
-            else{
-                return;
-            }
 
-        });
         courses.forEach(c => {
             const card = document.createElement("div");
             card.className = "course-card";
-            if(c.status === "COMPLETED" || c.status === "STARTED"){
-                card.innerHTML = `<div class="card">
-                <h3>${esc(c.title)}</h3>
-                <p>Status: ${esc(c.status)}</p>
-                <div class="meta">
-                <span><b>Course ID:</b> ${esc(c.id)}</span>
+
+            card.innerHTML = `
+                <div class="card">
+                    <h3>${esc(c.title)}</h3>
+                    <p>${esc(c.description)}</p>
+                    <div class="meta">
+                        <span><b>Level:</b> ${esc(c.level)}</span>
+                        <span><b>Duration:</b> ${esc(c.duration)}</span>
+                        <span><b>Course ID:</b> ${esc(c.id)}</span>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <a href="${esc(c.url)}" target="_blank">
+                            <button>View Course</button>
+                        </a>
+                    </div>
                 </div>
-                <div style="margin-top:10px;">
-                <a href="${esc(c.url)}">
-                    <button href="${esc(c.url)}" disabled>Start Course</button>
-                </a>
-                </div>
-                </div>`;
-                list.appendChild(card);
-            }
-            else{
-                return;
-            }
+            `;
+            list.appendChild(card);
         });
     }
 
@@ -180,10 +157,9 @@
             .then(res => res.json())
             .then(data => {
                 renderCourses(data);
-                loading.style.display = "none";
             })
             .catch(() => {
-                loading.textContent = "Failed to load courses.";
+                list.textContent = "Failed to load courses.";
             });
     }
 
