@@ -1,26 +1,27 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Leaderboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         header {
             background-color: #005A9E;
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 100%;
         }
-        
+
         .brand {
             font-size: 1.5rem;
             font-weight: 700;
@@ -29,21 +30,21 @@
             display: flex;
             align-items: center;
         }
-        
+
         .nav-divider {
             width: 2px;
             height: 24px;
             background-color: rgba(255, 255, 255, 0.3);
             margin: 0 1.5rem;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
             align-items: center;
             flex: 1;
         }
-        
+
         .nav-links a {
             color: #fff;
             text-decoration: none;
@@ -51,12 +52,9 @@
             transition: color 0.2s, opacity 0.2s;
             padding: 0.5rem 0;
         }
-        
-        .nav-links a:hover {
-            color: #e0e0e0;
-            opacity: 0.9;
-        }
-        
+
+        .nav-links a:hover { color: #e0e0e0; opacity: 0.9; }
+
         .logout-link {
             color: #fff;
             text-decoration: none;
@@ -66,13 +64,11 @@
             border-radius: 4px;
             transition: background-color 0.2s, color 0.2s;
         }
-        
-        .logout-link:hover {
-            background-color: #fff;
-            color: #005A9E;
-        }
-        
+
+        .logout-link:hover { background-color: #fff; color: #005A9E; }
+
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; margin: 0; padding: 0; }
+
         .card {
             max-width: 75%;
             margin: 2rem auto;
@@ -81,12 +77,14 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .tabs {
             display: flex;
             gap: 0;
             border-bottom: 2px solid #005A9E;
             margin-bottom: 0;
         }
+
         .tab-btn {
             padding: 10px 24px;
             border: none;
@@ -98,19 +96,34 @@
             border-radius: 6px 6px 0 0;
             transition: background 0.15s, color 0.15s;
         }
+
         .tab-btn:hover { background: #f0f4f8; color: #005A9E; }
+
         .tab-btn.active {
             background: #005A9E;
             color: white;
             font-weight: 600;
         }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { text-align: left; border-bottom: 2px solid #005A9E; padding: 10px; color: #333; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
+        td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
         tr:hover { background-color: #f9f9f9; }
         h1 { margin-top: 0; margin-bottom: 1rem; }
+
+        .title-badge {
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -133,11 +146,10 @@
     <h1>Leaderboard</h1>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('global', this)">🌐 Global</button>
-        <button class="tab-btn" onclick="switchTab('friends', this)">👥 Friends</button>
+        <button class="tab-btn active" onclick="switchTab('global', this)">&#127758; Global</button>
+        <button class="tab-btn" onclick="switchTab('friends', this)">&#128101; Friends</button>
     </div>
 
-    <!-- Global Leaderboard -->
     <div id="global" class="tab-content active">
         <table>
             <tr>
@@ -148,14 +160,19 @@
             <c:forEach var="user" items="${users}" varStatus="loop">
                 <tr>
                     <td>${loop.index + 1}</td>
-                    <td>${user.username}</td>
+                    <td>
+                            ${user.username}
+                        <c:set var="titleDef" value="${titleMap[user.username]}" />
+                        <c:if test="${not empty titleDef}">
+                            <span class="title-badge" style="background-color: ${titleDef.colour};">${titleDef.name}</span>
+                        </c:if>
+                    </td>
                     <td>${user.xp}</td>
                 </tr>
             </c:forEach>
         </table>
     </div>
 
-    <!-- Friends Leaderboard -->
     <div id="friends" class="tab-content">
         <table>
             <tr>
@@ -166,7 +183,13 @@
             <c:forEach var="user" items="${friendsUsers}" varStatus="loop">
                 <tr>
                     <td>${loop.index + 1}</td>
-                    <td>${user.username}</td>
+                    <td>
+                            ${user.username}
+                        <c:set var="titleDef" value="${titleMap[user.username]}" />
+                        <c:if test="${not empty titleDef}">
+                            <span class="title-badge" style="background-color: ${titleDef.colour};">${titleDef.name}</span>
+                        </c:if>
+                    </td>
                     <td>${user.xp}</td>
                 </tr>
             </c:forEach>

@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
-    /**
-     * Auto-generated primary key.
-     */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,95 +50,57 @@ public class User {
     @Column(name = "friend_username")
     private List<String> friends;
 
-    public List<String> getFriends() {return friends;}
+    @Column
+    private LocalDate lastLoginDate;
 
-    public void setFriends(List<String> friends) {this.friends = friends;}
+    @Column(nullable = false)
+    private int loginStreak = 0;
 
-    public String getRole() {
-        return role;
-    }
+    @Column
+    private String equippedTitle;
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+    public List<String> getFriends() { return friends; }
+    public void setFriends(List<String> friends) { this.friends = friends; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getLastName() {
-        return lastName;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
 
-    public String getEmail() {
-        return email;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public List<Achievement> getAchievements() { return achievements; }
+    public void setAchievements(List<Achievement> achievements) { this.achievements = achievements; }
 
-    public String getCourse() {
-        return course;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public void setCourse(String course) {
-        this.course = course;
-    }
+    public long getXp() { return xp; }
+    public void setXp(long xp) { this.xp = xp; }
 
-    public Long getId() {
-        return id;
-    }
+    public int getLevel() { return level; }
+    public void setLevel(int level) { this.level = level; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getLastLoginDate() { return lastLoginDate; }
+    public void setLastLoginDate(LocalDate lastLoginDate) { this.lastLoginDate = lastLoginDate; }
 
-    public List<Achievement> getAchievements() {
-        return achievements;
-    }
+    public int getLoginStreak() { return loginStreak; }
+    public void setLoginStreak(int loginStreak) { this.loginStreak = loginStreak; }
 
-    public void setAchievements(List<Achievement> achievements) {
-        this.achievements = achievements;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public long getXp() {
-        return xp;
-    }
-
-    public void setXp(long xp) {
-        this.xp = xp;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
+    public String getEquippedTitle() { return equippedTitle; }
+    public void setEquippedTitle(String equippedTitle) { this.equippedTitle = equippedTitle; }
 }

@@ -1,8 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Homepage</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,14 +16,14 @@
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 100%;
         }
-        
+
         .brand {
             font-size: 1.5rem;
             font-weight: 700;
@@ -29,21 +32,21 @@
             display: flex;
             align-items: center;
         }
-        
+
         .nav-divider {
             width: 2px;
             height: 24px;
             background-color: rgba(255, 255, 255, 0.3);
             margin: 0 1.5rem;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
             align-items: center;
             flex: 1;
         }
-        
+
         .nav-links a {
             color: #fff;
             text-decoration: none;
@@ -51,12 +54,12 @@
             transition: color 0.2s, opacity 0.2s;
             padding: 0.5rem 0;
         }
-        
+
         .nav-links a:hover {
             color: #e0e0e0;
             opacity: 0.9;
         }
-        
+
         .logout-link {
             color: #fff;
             text-decoration: none;
@@ -66,12 +69,11 @@
             border-radius: 4px;
             transition: background-color 0.2s, color 0.2s;
         }
-        
+
         .logout-link:hover {
             background-color: #fff;
             color: #005A9E;
         }
-        
 
         main {
             padding: 2rem;
@@ -237,7 +239,7 @@
                 </div>
                 <div class="stat">
                     <span class="stat-label">Streak:</span>
-                    <span class="stat-value">0</span>
+                    <span class="stat-value"><c:out value="${streak}" /> &#128293;</span>
                 </div>
             </div>
         </div>

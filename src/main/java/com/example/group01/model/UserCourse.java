@@ -3,12 +3,8 @@ package com.example.group01.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(
-        name = "user_courses",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "course_id"})
-        }
-)
+@Table(name = "user_courses",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "course_id"}))
 public class UserCourse {
 
     @Id

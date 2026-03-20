@@ -14,7 +14,6 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
         if (courseRepository.count() == 0) {
 
             courseRepository.save(new Course(

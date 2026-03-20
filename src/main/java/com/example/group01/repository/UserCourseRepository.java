@@ -1,5 +1,7 @@
 package com.example.group01.repository;
 
+import com.example.group01.model.Course;
+import com.example.group01.model.User;
 import com.example.group01.model.UserCourse;
 import org.springframework.data.jpa.repository.JpaRepository;
 

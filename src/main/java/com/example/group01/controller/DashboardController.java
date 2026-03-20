@@ -7,8 +7,14 @@ import com.example.group01.repository.UserCourseRepository;
 import org.springframework.security.core.Authentication;
 import com.example.group01.repository.UserRepository;
 import com.example.group01.model.User;
+import com.example.group01.model.UserCourse;
+import com.example.group01.repository.CourseRepository;
+import com.example.group01.repository.UserCourseRepository;
+import com.example.group01.repository.UserRepository;
+import com.example.group01.service.AchievementService;
 import com.example.group01.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,28 +34,26 @@ public class DashboardController {
     private CourseRepository courseRepository;
 
     @Autowired
+    private UserCourseRepository userCourseRepository;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private UserCourseRepository userCourseRepository;
-
+    private AchievementService achievementService;
 
     @GetMapping("/dashboard")
     public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword,
-                                Model model,
-                                Authentication authentication) {
+                                Model model, Authentication authentication) {
 
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
 
-        boolean hasCourseMaster = false;
-        if (user.getAchievements() != null) {
-            hasCourseMaster = user.getAchievements().stream()
-                    .anyMatch(a -> a.getTitle().equals("Course Master (3 Courses)"));
-        }
+        boolean hasCourseMaster = user.getAchievements() != null && user.getAchievements().stream()
+                .anyMatch(a -> a.getTitle().equals("Course Master (3 Courses)"));
         model.addAttribute("hasCourseMaster", hasCourseMaster);
 
         List<Course> coursesDisplay;
@@ -87,6 +91,22 @@ public class DashboardController {
                 .sorted(pathComparator)
                 .collect(Collectors.toList());
 
+        List<Long> startedIds = userCourses.stream()
+                .filter(uc -> "STARTED".equals(uc.getStatus()))
+                .map(uc -> uc.getCourse().getId())
+                .collect(Collectors.toList());
+
+        List<Long> completedIds = userCourses.stream()
+                .filter(uc -> "COMPLETED".equals(uc.getStatus()))
+                .map(uc -> uc.getCourse().getId())
+                .collect(Collectors.toList());
+
+        List<Course> availableCourses = allCourses.stream()
+                .filter(c -> !startedIds.contains(c.getId()) && !completedIds.contains(c.getId()))
+                .collect(Collectors.toList());
+
+        long completedCourseCount = userCourseRepository.countByUserAndStatus(user, "COMPLETED");
+
         model.addAttribute("startedCourses", startedCourses);
         model.addAttribute("availableCourses", availableCourses);
         model.addAttribute("completedCourses", completedCourses);
@@ -115,16 +135,20 @@ public class DashboardController {
         User user = userRepository.findByEmail(email);
         Course course = courseRepository.findById(id).orElseThrow();
 
-        UserCourse userCourse = userCourseRepository
-                .findByUserIdAndCourseId(user.getId(), course.getId())
-                .orElseGet(() -> new UserCourse(user, course, "STARTED"));
+        Optional<UserCourse> existing = userCourseRepository.findByUserAndCourse(user, course);
+        if (existing.isPresent()) {
+            existing.get().setStatus("COMPLETED");
+            userCourseRepository.save(existing.get());
+        } else {
+            userCourseRepository.save(new UserCourse(user, course, "COMPLETED"));
+        }
 
-        boolean wasAlreadyCompleted = "COMPLETED".equals(userCourse.getStatus());
+        userService.awardCourseCompletionXp();
 
-        if (!wasAlreadyCompleted) {
-            userCourse.setStatus("COMPLETED");
-            userCourseRepository.save(userCourse);
-            userService.awardCourseCompletionXp();
+        long totalCompleted = userCourseRepository.countByUserAndStatus(user, "COMPLETED");
+        if (totalCompleted >= 3) {
+            user = userRepository.findByEmail(email);
+            achievementService.unlockAchievement(user, "Course Master (3 Courses)");
         }
 
         return "redirect:/dashboard";
