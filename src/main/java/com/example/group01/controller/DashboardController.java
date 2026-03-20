@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -32,25 +29,24 @@ public class DashboardController {
 
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private UserCourseRepository userCourseRepository;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private AchievementService achievementService;
 
     @GetMapping("/dashboard")
-    public String showDashboard(@RequestParam(name = "keyword", required = false) String keyword,
-                                Model model, Authentication authentication) {
+    public String showDashboard(@RequestParam(name = "keyword", required = false)
+                                String keyword,
+                                Model model,
+                                Authentication authentication) {
 
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
+        Long userId = user.getId();
 
         boolean hasCourseMaster = user.getAchievements() != null && user.getAchievements().stream()
                 .anyMatch(a -> a.getTitle().equals("Course Master (3 Courses)"));
@@ -91,7 +87,7 @@ public class DashboardController {
                 .sorted(pathComparator)
                 .collect(Collectors.toList());
 
-        List<Long> startedIds = userCourses.stream()
+        /* List<Long> startedIds = userCourses.stream()
                 .filter(uc -> "STARTED".equals(uc.getStatus()))
                 .map(uc -> uc.getCourse().getId())
                 .collect(Collectors.toList());
@@ -103,9 +99,9 @@ public class DashboardController {
 
         List<Course> availableCourses = allCourses.stream()
                 .filter(c -> !startedIds.contains(c.getId()) && !completedIds.contains(c.getId()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); */
 
-        long completedCourseCount = userCourseRepository.countByUserAndStatus(user, "COMPLETED");
+        long completedCourseCount = userCourseRepository.countByUserIdAndStatus(userId, "COMPLETED");
 
         model.addAttribute("startedCourses", startedCourses);
         model.addAttribute("availableCourses", availableCourses);
@@ -134,8 +130,10 @@ public class DashboardController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
         Course course = courseRepository.findById(id).orElseThrow();
+        Long userId = user.getId();
+        Long courseId = course.getId();
 
-        Optional<UserCourse> existing = userCourseRepository.findByUserAndCourse(user, course);
+        Optional<UserCourse> existing = userCourseRepository.findByUserIdAndCourseId(userId, courseId);
         if (existing.isPresent()) {
             existing.get().setStatus("COMPLETED");
             userCourseRepository.save(existing.get());
@@ -145,7 +143,7 @@ public class DashboardController {
 
         userService.awardCourseCompletionXp();
 
-        long totalCompleted = userCourseRepository.countByUserAndStatus(user, "COMPLETED");
+        long totalCompleted = userCourseRepository.countByUserIdAndStatus(userId, "COMPLETED");
         if (totalCompleted >= 3) {
             user = userRepository.findByEmail(email);
             achievementService.unlockAchievement(user, "Course Master (3 Courses)");
