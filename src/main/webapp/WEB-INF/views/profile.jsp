@@ -257,6 +257,31 @@
             font-size: 0.9rem;
             color: #555;
         }
+
+        .xp-bar-container {
+            text-align: center;
+            margin: 10px 0 20px 0;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background-color: #005A9E;
+            transition: width 0.3s ease;
+        }
+
+        .xp-text {
+            font-size: 0.9rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -279,6 +304,13 @@
 
     <h1>My Profile</h1>
     <p style="text-align:center; font-size:1.2rem; margin: 6px 0 4px 0;">Level: <strong>${user.level}</strong></p>
+
+    <div class="xp-bar-container">
+        <div class="xp-bar">
+            <div class="xp-fill" style="width: ${user.xp % 100}%;"></div>
+        </div>
+        <div class="xp-text">${user.xp % 100}/100 XP to next level</div>
+    </div>
 
     <div class="current-title-display">
         Current title:
