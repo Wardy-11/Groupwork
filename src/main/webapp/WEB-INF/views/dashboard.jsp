@@ -637,6 +637,7 @@
                                             <form action="${pageContext.request.contextPath}/complete-course" method="post">
                                                 <input type="hidden" name="courseId" value="${course.id}">
                                                 <button type="submit" class="btn btn-green">Mark as Complete</button>
+                                                <a href="${pageContext.request.contextPath}/comments/comments-page?courseId=${course.id}" class="btn btn-blue">View Comments</a>
                                             </form>
                                         </div>
                                     </div>
@@ -697,6 +698,7 @@
                                             <form action="${pageContext.request.contextPath}/start-course" method="post">
                                                 <input type="hidden" name="courseId" value="${course.id}">
                                                 <button type="submit" class="btn btn-green">Start Course</button>
+                                                <a href="${pageContext.request.contextPath}/comments/comments-page?courseId=${course.id}" class="btn btn-blue">View Comments</a>
                                             </form>
                                         </div>
                                     </div>
@@ -752,6 +754,7 @@
 
                                         <div class="button-group">
                                             <a href="${course.url}" target="_blank" class="btn btn-muted">Review Material</a>
+                                            <a href="${pageContext.request.contextPath}/comments/comments-page?courseId=${course.id}" class="btn btn-blue">View Comments</a>
                                         </div>
                                     </div>
                                 </c:forEach>

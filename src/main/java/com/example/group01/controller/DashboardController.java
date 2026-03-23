@@ -51,6 +51,7 @@ public class DashboardController {
         boolean hasCourseMaster = user.getAchievements() != null && user.getAchievements().stream()
                 .anyMatch(a -> a.getTitle().equals("Course Master (3 Courses)"));
         model.addAttribute("hasCourseMaster", hasCourseMaster);
+        model.addAttribute("userID", user.getId());
 
         List<Course> coursesDisplay;
         if (keyword != null && !keyword.isEmpty()) {
