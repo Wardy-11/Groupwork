@@ -382,6 +382,22 @@
     </div>
 
     <div id="titles" class="section-tab-content">
+        <c:if test="${!hasTrendsetter}">
+            <div style="background-color: #fff4e6; border: 1px solid #ffd8a8; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #d9480f; margin-bottom: 5px;">✨ New Mission: Trendsetter</h3>
+                <p style="color: #333; font-size: 0.95rem;">Equip a title below to claim your <strong>75 XP</strong> reward!</p>
+                <div style="width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 10px; height: 10px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background-color: #f08c00;"></div>
+                </div>
+            </div>
+        </c:if>
+
+        <c:if test="${hasTrendsetter}">
+            <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #2e7d32; margin-bottom: 0;">🎉 Goal Achieved: Trendsetter!</h3>
+                <p style="color: #666; margin-top: 5px; font-size: 0.85rem;">Identity customized.</p>
+            </div>
+        </c:if>
         <div class="titles-scroll">
             <c:forEach var="def" items="${allTitles}">
                 <c:set var="isUnlocked" value="false" />

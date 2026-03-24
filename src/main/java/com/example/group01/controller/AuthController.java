@@ -122,6 +122,12 @@ public class AuthController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
         populateProfileModel(model, user);
+        boolean hasTrendsetter = false;
+        if (user.getAchievements() != null) {
+            hasTrendsetter = user.getAchievements().stream()
+                    .anyMatch(a -> a.getTitle().equals("Trendsetter (Equip a Title)"));
+        }
+        model.addAttribute("hasTrendsetter", hasTrendsetter);
         return "profile";
     }
 
@@ -164,6 +170,9 @@ public class AuthController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
         titleService.equipTitle(user, titleName);
+        if (user != null) {
+            achievementService.unlockAchievement(user, "Trendsetter (Equip a Title)");
+        }
         return "redirect:/profile";
     }
 
@@ -225,7 +234,6 @@ public class AuthController {
         } else {
             friendsDisplay = user.getFriends();
         }
-
         Map<String, TitleDefinition> titleMap = new HashMap<>();
         if (friendsDisplay != null) {
             for (String username : friendsDisplay) {
@@ -233,13 +241,19 @@ public class AuthController {
                 if (friendUser != null) titleMap.put(username, titleService.getEquippedTitleDefinition(friendUser));
             }
         }
-
+        boolean hasFirstFriend = false;
+        if (user.getAchievements() != null) {
+            hasFirstFriend = user.getAchievements().stream()
+                    .anyMatch(a -> a.getTitle().equals("Social Butterfly (Add 1 Friend)"));
+        }
+        model.addAttribute("hasFirstFriend", hasFirstFriend);
+        int friendCount = (user.getFriends() != null) ? user.getFriends().size() : 0;
+        model.addAttribute("friendCount", friendCount);
         model.addAttribute("friends", friendsDisplay);
         model.addAttribute("currentUser", user);
         model.addAttribute("titleMap", titleMap);
         return "friends";
     }
-
     @GetMapping("/allUsers")
     public String showAllUsers(Model model, Authentication authentication, @RequestParam(name = "keyword", required = false) String keyword) {
         List<User> usersDisplay;
@@ -282,8 +296,10 @@ public class AuthController {
     public String addFriend(Authentication authentication, @RequestParam("username") String username, @RequestParam("source") String source) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email);
+
         user.getFriends().add(username);
         userRepository.save(user);
+        achievementService.unlockAchievement(user, "Social Butterfly (Add 1 Friend)");
         return "redirect:/" + source;
     }
 

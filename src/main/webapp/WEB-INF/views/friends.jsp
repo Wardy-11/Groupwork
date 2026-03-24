@@ -139,17 +139,28 @@
     <div class="island-header">
         <div class="island-header-left">
             <h1>Friends</h1>
-            <form action="/friends" method="get" style="display:flex; gap:8px; align-items:center;">
-                <input type="text" name="keyword" class="search-box" placeholder="Find Friends" value="${param.keyword}" />
-                <button type="submit" class="btn btn-blue">Search</button>
-                <c:if test="${not empty param.keyword}">
-                    <a href="/friends" style="color:#666; font-size:0.9rem;">Clear Search</a>
-                </c:if>
-            </form>
         </div>
         <a href="<c:url value='/allUsers'/>" class="nav-link">Discover People</a>
     </div>
 
+    <c:if test="${!hasFirstFriend}">
+        <div style="background-color: #e6f2ff; border: 1px solid #b3d9ff; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #005A9E; margin-bottom: 10px;">🤝 Current Goal: Add a Friend</h2>
+            <p style="font-size: 1.2rem; color: #333;">Progress: <strong>0 / 1</strong></p>
+
+            <div style="width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 15px; overflow: hidden;">
+                <div style="width: 0%; height: 20px; background-color: #107C10; border-radius: 5px;"></div>
+            </div>
+            <p style="color: #666; margin-top: 10px; font-size: 0.9rem;">Find someone in 'Discover People' to complete this goal!</p>
+        </div>
+    </c:if>
+
+    <c:if test="${hasFirstFriend}">
+        <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #2e7d32; margin-bottom: 0;">🎉 Goal Achieved: Social Butterfly!</h2>
+            <p style="color: #666; margin-top: 5px;">You have successfully connected with other learners. +100 XP!</p>
+        </div>
+    </c:if>
     <table>
         <c:forEach var="friend" items="${friends}">
             <tr>
