@@ -39,6 +39,10 @@ public class AchievementService {
                 new AchievementDefinition("Legend", "Log in 50 days in a row.", 750));
         ALL_ACHIEVEMENTS.put("Course Master (3 Courses)",
                 new AchievementDefinition("Course Master (3 Courses)", "Complete 3 IBM SkillsBuild courses.", 150));
+        ALL_ACHIEVEMENTS.put("Social Butterfly (Add 1 Friend)",
+                new AchievementDefinition("Social Butterfly (Add 1 Friend)", "Connect with another learner by adding your first friend.", 100));
+        ALL_ACHIEVEMENTS.put("Trendsetter (Equip a Title)",
+                new AchievementDefinition("Trendsetter (Equip a Title)", "Equip a custom title for the first time.", 75));
     }
 
     public boolean unlockAchievement(User user, String title) {
